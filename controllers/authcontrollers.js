@@ -44,7 +44,7 @@ export async function login(req, res) {
         let isMatch = await bcrypt.compare(password, found.password);
         if (isMatch) {
             let token = jwt.sign(         // ✅ removed unused `key` variable
-                { userID: found._id, email: found.email },
+                { userID: found._id },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES_IN }
             )
