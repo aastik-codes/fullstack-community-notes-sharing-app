@@ -32,7 +32,7 @@ export async function signup(req, res) {
         console.log("user saved")
         res.send("user added")
     } catch (err) {
-        res.status(500).json({ message: "Error occurred", error: err }) // ✅ single response
+        res.status(500).json({ message: "Error occurred", error: err }) 
     }
 }
 
@@ -43,19 +43,19 @@ export async function login(req, res) {
     if (found) {
         let isMatch = await bcrypt.compare(password, found.password);
         if (isMatch) {
-            let token = jwt.sign(         // ✅ removed unused `key` variable
+            let token = jwt.sign(         
                 { userID: found._id },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES_IN }
             )
-            res.send(token)               // ✅ removed misplaced nodemailer code
+            res.send(token)               
         } else {
             res.send("Password or email was wrong, please try again.")
         }
     } else {
         res.status(404).json({ message: "User not found" })
     }
-}                                         // ✅ closing brace was missing
+}                                         
 
 export async function forgot(req, res) {
     const { email } = req.body
@@ -70,13 +70,13 @@ export async function forgot(req, res) {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: process.env.EMAIL_USER,   // ✅ replaced hardcoded credentials
+                user: process.env.EMAIL_USER,   
                 pass: process.env.EMAIL_PASS
             }
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,       // ✅ replaced hardcoded email
+            from: process.env.EMAIL_USER,       
             to: found.email,
             subject: "Password reset request",
             text: `Your reset token is ${token}`
@@ -105,4 +105,4 @@ export async function updatepass(req, res) {
     } else {
         return res.send("Incorrect token")
     }
-}                                               // ✅ removed extra stray closing brace
+}                                      

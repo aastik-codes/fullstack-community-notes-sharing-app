@@ -1,8 +1,7 @@
-const { access } = require("node:fs");
+import mongoose from 'mongoose'
+const {Schema} = mongoose
 
-const {schema} = mongoose
-
-const userSchema = new Schema({
+const NoteSchema = new Schema({
     rating:{type:Number,default:0},
     access: [{type:String}],
     noteUrl:{
@@ -10,13 +9,14 @@ const userSchema = new Schema({
         required:true
     },
     user:{
-        type:schema.Types.ObjectId,
-        ref: "user",
+        type:Schema.Types.ObjectId,
+        ref: "User",
         required: true
-    }
+    },
+    status:{type:String,enum:["active","inactive"],default:"active"}
 
 });
 
 
 
-module.exports = mongoose.model('Note',userSchema);
+export default mongoose.model("Note",NoteSchema)
