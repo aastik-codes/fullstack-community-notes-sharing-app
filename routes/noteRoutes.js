@@ -3,7 +3,7 @@ import express from 'express';
 import { authMiddleware } from '../middleware/authMIddleware.js';
 import upload from '../config/multer.js';
 import { uploadfile,GetNotesone, GetNotesAll, DeleteOne} from '../controllers/notescontrollers.js';
-
+import { canAccessNote } from '../middleware/accessMiddleware.js';
 const Nrouter = express.Router()
 Nrouter.use(authMiddleware)
 
@@ -23,7 +23,7 @@ Nrouter.get('/user/notes/getnotesall',(req,res)=>{
 })
 
 
-Nrouter.get('/user/notes/getnotesone',(req,res)=>{
+Nrouter.get('/user/notes/getnotesone',canAccessNote,(req,res)=>{
     GetNotesone(req,res)
 })
 

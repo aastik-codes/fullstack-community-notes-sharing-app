@@ -5,12 +5,14 @@ import authRoutes from './routes/authroutes.js'
 import { connectDB } from './config/db.js';
 import Userroutes from './routes/UserRoutes.js'
 import Nrouter from './routes/noteRoutes.js';
+import Arouter from './routes/accessRoutes.js';
 const app = express();
 app.use(express.json());
 app.use('/', HealthRoutes);
 app.use('/', authRoutes);
 app.use('/',Userroutes)
 app.use('/',Nrouter)
+app.use('/',Arouter)
 
 app.listen(3000,()=>{
     connectDB()
