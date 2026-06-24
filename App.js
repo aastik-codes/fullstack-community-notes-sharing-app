@@ -35,7 +35,7 @@ app.use('/', Rrouter)
 app.use('/', Crouter)
 
 // ── SPA fallback — serve index for any unmatched non-API GET ───────────────────
-app.get('*', (req, res) => {
+app.get('*splat', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', '01-auth.html'))
 })
 
