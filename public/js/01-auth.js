@@ -110,8 +110,7 @@ signupBtn.addEventListener('click', async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })
         })
-        const body = await res.json().catch(() => res.text())
-
+        const body = await res.text()
         if (!res.ok) {
             showError(signupPanel, body?.message || 'Sign up failed.')
         } else {
