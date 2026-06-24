@@ -15,7 +15,7 @@ export async function AddAccess(req,res){
         } // 404 -> server speicific request kiya  hua resource nahi dhund paya
 
 
-        if(note.user !== req.user){
+        if(note.user.toString() !== req.user){
             return res.status(403).send("Not owner")
         } // forbidden from requesting that data
 

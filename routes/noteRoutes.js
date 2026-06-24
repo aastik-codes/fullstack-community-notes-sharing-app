@@ -51,7 +51,7 @@ Nrouter.get(
 )
 
 
-Nrouter.get(
+Nrouter.delete(
     '/user/notes/Deleteone',
     (req, res) => {
         DeleteOne(req, res)

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marginalia — My Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF7F0; --paper-deep:#F0EAD9; --ink:#1C1B19; --ink-soft:#3a3835;
+    --sienna:#8B5E3C; --sienna-deep:#6e4a2e; --forest:#3D5A4C; --forest-deep:#2c453a;
+    --rust:#A33B2E; --pencil:#6B6862; --line:#D8CFB8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 40px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10;}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:20px;display:flex;align-items:center;gap:8px;}
+  .brand .mark{width:26px;height:26px;border:1.5px solid var(--ink);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;transform:rotate(-4deg);}
+  nav{display:flex;gap:28px;font-size:13.5px;font-weight:500;}
+  nav a{color:var(--pencil);text-decoration:none;position:relative;padding:4px 0;}
+  nav a.active{color:var(--ink);}
+  nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--sienna);border-radius:2px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:14px;font-weight:600;}
+
+  main{max-width:1180px;margin:0 auto;padding:44px 40px 80px;}
+
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap;gap:14px;}
+  .page-head h1{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:32px;margin:0 0 4px;}
+  .page-head p{margin:0;color:var(--pencil);font-size:13.5px;}
+  .upload-cta{background:var(--ink);color:var(--paper);border:none;border-radius:8px;padding:12px 20px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s ease, transform .15s ease;}
+  .upload-cta:hover{background:var(--sienna-deep);}
+  .upload-cta:active{transform:scale(.97);}
+
+  .filter-bar{display:flex;gap:10px;margin-bottom:30px;flex-wrap:wrap;}
+  .chip{
+    font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 14px;border-radius:20px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;
+    transition:all .2s ease;user-select:none;
+  }
+  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .chip:hover:not(.active){border-color:var(--sienna);color:var(--sienna-deep);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(270px,1fr));gap:22px;}
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:0;
+    position:relative;overflow:hidden;
+    transition:transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease;
+    animation:rise .5s cubic-bezier(.16,1,.3,1) both;
+  }
+  .grid .card:nth-child(1){animation-delay:0s;}
+  .grid .card:nth-child(2){animation-delay:.05s;}
+  .grid .card:nth-child(3){animation-delay:.1s;}
+  .grid .card:nth-child(4){animation-delay:.15s;}
+  .grid .card:nth-child(5){animation-delay:.2s;}
+  .grid .card:nth-child(6){animation-delay:.25s;}
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .card:hover{transform:translateY(-4px); box-shadow:0 14px 28px -10px rgba(28,27,25,0.18);}
+
+  /* stamped corner badge */
+  .stamp{
+    position:absolute; top:14px; right:-30px; width:130px; text-align:center;
+    transform:rotate(40deg);
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; padding:3px 0;
+    border-top:1.5px solid; border-bottom:1.5px solid;
+    opacity:.92;
+  }
+  .stamp.public{color:var(--forest-deep); border-color:var(--forest-deep); background:rgba(61,90,76,.06);}
+  .stamp.private{color:var(--rust); border-color:var(--rust); background:rgba(163,59,46,.05);}
+  .stamp.shared{color:var(--sienna-deep); border-color:var(--sienna-deep); background:rgba(139,94,60,.06);}
+
+  .card-top{
+    padding:26px 22px 18px;
+    border-bottom:1px dashed var(--line);
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .file-ico{width:36px;height:44px;border:1.5px solid var(--ink);border-radius:3px;position:relative;flex-shrink:0;background:#fff;margin-top:2px;}
+  .file-ico::before{content:"";position:absolute;top:0;right:0;width:10px;height:10px;background:var(--paper);border-bottom:1.5px solid var(--ink);border-left:1.5px solid var(--ink);}
+  .file-ico::after{content:"PDF";position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:6px;font-weight:700;letter-spacing:.02em;color:var(--rust);}
+  .card-title{font-weight:600;font-size:15px;line-height:1.35;margin:0 0 6px; padding-right:30px;}
+  .card-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--pencil);}
+
+  .card-bottom{padding:16px 22px 20px; display:flex; align-items:center; justify-content:space-between;}
+  .rating-disp{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--ink-soft);}
+  .rating-disp svg{width:13px;height:13px;color:var(--forest);}
+  .rating-disp.empty{color:var(--pencil); font-weight:500;}
+
+  .actions{display:flex;gap:8px;}
+  .icon-btn{
+    width:32px;height:32px;border-radius:7px;border:1px solid var(--line);background:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);
+    transition:all .2s ease;
+  }
+  .icon-btn:hover{border-color:var(--sienna); color:var(--sienna-deep); background:var(--paper-deep);}
+  .icon-btn.danger:hover{border-color:var(--rust); color:var(--rust); background:rgba(163,59,46,.06);}
+  .icon-btn svg{width:15px;height:15px;}
+
+  /* upload-new ghost card */
+  .card.ghost{
+    border:1.5px dashed var(--line); display:flex; flex-direction:column; align-items:center;
+    justify-content:center; min-height:204px; cursor:pointer; color:var(--pencil);
+    background:transparent;
+  }
+  .card.ghost:hover{border-color:var(--sienna); color:var(--sienna-deep); background:rgba(139,94,60,.04); transform:translateY(-4px);}
+  .card.ghost .plus{font-family:'Fraunces',serif;font-size:32px;margin-bottom:8px;}
+  .card.ghost span.label{font-size:13px;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">M.</span> Marginalia</div>
+  <nav>
+    <a href="#">Dashboard</a>
+    <a href="#" class="active">My notes</a>
+    <a href="#">Browse</a>
+    <a href="#">Profile</a>
+  </nav>
+  <div class="avatar">A</div>
+</div>
+
+<main>
+  <div class="page-head">
+    <div>
+      <h1>My notes</h1>
+      <p>12 active files on your shelf</p>
+    </div>
+    <button class="upload-cta">＋ Upload a note</button>
+  </div>
+
+  <div class="filter-bar">
+    <div class="chip active">All · 12</div>
+    <div class="chip">Public · 5</div>
+    <div class="chip">Shared · 4</div>
+    <div class="chip">Private · 3</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="stamp public">public</div>
+      <div class="card-top">
+        <div class="file-ico"></div>
+        <div>
+          <p class="card-title">Operating Systems — Scheduling Algorithms</p>
+          <div class="card-meta">1.4 MB · uploaded 2 days ago</div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="rating-disp">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
+          4.9 <span style="color:var(--pencil);font-weight:400;">· 31</span>
+        </div>
+        <div class="actions">
+          <div class="icon-btn" title="Manage access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+          <div class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stamp shared">shared</div>
+      <div class="card-top">
+        <div class="file-ico"></div>
+        <div>
+          <p class="card-title">DBMS Normalization — full unit</p>
+          <div class="card-meta">2.1 MB · uploaded 5 days ago</div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="rating-disp">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
+          4.4 <span style="color:var(--pencil);font-weight:400;">· 12</span>
+        </div>
+        <div class="actions">
+          <div class="icon-btn" title="Manage access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+          <div class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stamp private">private</div>
+      <div class="card-top">
+        <div class="file-ico"></div>
+        <div>
+          <p class="card-title">Discrete Math — Graph Theory crash sheet</p>
+          <div class="card-meta">860 KB · uploaded 1 week ago</div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="rating-disp empty">No ratings yet</div>
+        <div class="actions">
+          <div class="icon-btn" title="Manage access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+          <div class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stamp public">public</div>
+      <div class="card-top">
+        <div class="file-ico"></div>
+        <div>
+          <p class="card-title">Computer Networks — OSI vs TCP/IP</p>
+          <div class="card-meta">990 KB · uploaded 2 weeks ago</div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="rating-disp">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
+          4.7 <span style="color:var(--pencil);font-weight:400;">· 19</span>
+        </div>
+        <div class="actions">
+          <div class="icon-btn" title="Manage access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+          <div class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stamp shared">shared</div>
+      <div class="card-top">
+        <div class="file-ico"></div>
+        <div>
+          <p class="card-title">Linear Algebra — Eigenvalues quick ref</p>
+          <div class="card-meta">410 KB · uploaded 3 weeks ago</div>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <div class="rating-disp">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
+          4.1 <span style="color:var(--pencil);font-weight:400;">· 7</span>
+        </div>
+        <div class="actions">
+          <div class="icon-btn" title="Manage access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg></div>
+          <div class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card ghost">
+      <div class="plus">＋</div>
+      <span class="label">Upload another note</span>
+    </div>
+
+  </div>
+</main>
+<script type="module" src="/js/03-my-notes.js"></script>
+
+</body>
+</html>

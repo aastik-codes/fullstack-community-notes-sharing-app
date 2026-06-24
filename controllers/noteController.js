@@ -98,99 +98,53 @@ export async function DeleteOne(req, res) {
 
 export async function SearchNotes(req, res) {
     try {
-        const {
-            search,
-            sort,
-            page = 1,
-            limit = 5
-        } = req.query;
-
-        let userFilter = {};
-
-        if (search) {
-            userFilter = {
-                $or: [
-                    {
-                        username: {
-                            $regex: search,
-                            $options: "i"
-                        }
-                    },
-                    {
-                        email: {
-                            $regex: search,
-                            $options: "i"
-                        }
-                    }
-                ]
-            };
-        }
-
-        const foundUsers = await user.find(userFilter);
-
-        const userIds = foundUsers.map(
-            currentUser => currentUser._id
-        );
-
-        // BUG FIX: $in: [] always returns 0 results in MongoDB
-        if (search && userIds.length === 0) {
-            return res.status(200).json({
-                currentPage: Number(page),
-                totalPages: 0,
-                totalNotes: 0,
-                notes: []
-            });
-        }
-
-        let sortOption = {};
-
-        if (sort === "highest") {
-            sortOption = { rating: -1 };
-        }
-
-        if (sort === "lowest") {
-            sortOption = { rating: 1 };
-        }
-
-        if (sort === "newest") {
-            sortOption = { createdAt: -1 };
-        }
-
-        if (sort === "oldest") {
-            sortOption = { createdAt: 1 };
-        }
+        const { search, sort, page = 1, limit = 5 } = req.query;
 
         const pageNumber = Number(page);
         const limitNumber = Number(limit);
 
-        const totalNotes = await notes.countDocuments({
-            user: { $in: userIds },
+        let filter = {
             visibility: "public",
             status: "active"
-        });
+        };
 
-        const foundNotes = await notes.find({
-            user: { $in: userIds },
-            visibility: "public",
-            status: "active"
-        })
-        .populate("user", "username email")
-        .sort(sortOption)
-        .skip((pageNumber - 1) * limitNumber)
-        .limit(limitNumber);
+        if (search) {
+            const foundUsers = await user.find({
+                $or: [
+                    { username: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } }
+                ]
+            });
+
+            const userIds = foundUsers.map(u => u._id);
+
+            filter.user = { $in: userIds };
+        }
+
+        let sortOption = {};
+
+        if (sort === "highest") sortOption = { rating: -1 };
+        if (sort === "lowest") sortOption = { rating: 1 };
+        if (sort === "newest") sortOption = { createdAt: -1 };
+        if (sort === "oldest") sortOption = { createdAt: 1 };
+
+        const totalNotes = await notes.countDocuments(filter);
+
+        const foundNotes = await notes.find(filter)
+            .populate("user", "username email")
+            .sort(sortOption)
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
 
         res.status(200).json({
             currentPage: pageNumber,
             totalPages: Math.ceil(totalNotes / limitNumber),
-            totalNotes: totalNotes,
+            totalNotes,
             notes: foundNotes
         });
 
     } catch (err) {
         console.error(err);
-
-        res.status(500).json({
-            message: "Server Error"
-        });
+        res.status(500).json({ message: "Server Error" });
     }
 }
