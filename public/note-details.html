@@ -1,87 +1,995 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Note Details | Notes</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f6f7fb;color:#172033;padding:28px}.page{max-width:1050px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.back,.open{padding:11px 14px;border-radius:10px;text-decoration:none;font-weight:700}.back{color:#4f46e5}.open{display:none;background:#4f46e5;color:#fff}.open.visible{display:inline-block}.grid{display:grid;grid-template-columns:1fr 320px;gap:20px}.card{padding:22px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.05)}.owner{color:#697386;margin:8px 0 18px}.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.pill{padding:8px 10px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:12px;font-weight:700}iframe{width:100%;min-height:650px;border:0;border-radius:14px;background:#eef2f7}.stars{display:flex;gap:7px;margin:15px 0}.star{flex:1;height:42px;border:1px solid #e2e8f0;border-radius:9px;background:#fff;color:#94a3b8;font-size:20px;cursor:pointer}.star.selected{background:#fffbeb;color:#f59e0b;border-color:#fbbf24}.primary{width:100%;padding:12px;border:0;border-radius:10px;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer}.primary:disabled{background:#a5b4fc}textarea{width:100%;min-height:95px;padding:12px;border:1px solid #dbe2ea;border-radius:10px;resize:vertical;margin:12px 0}.comments{display:grid;gap:10px;margin-top:15px}.comment{padding:13px;border-radius:11px;background:#f8fafc}.comment strong{font-size:13px}.comment p{margin-top:7px;color:#475569;font-size:13px;line-height:1.5}.delete{float:right;border:0;background:transparent;color:#b91c1c;cursor:pointer}.message{padding:18px;border-radius:14px;background:#fff;text-align:center;color:#697386}@media(max-width:800px){.grid{grid-template-columns:1fr}}@media(max-width:520px){body{padding:16px}.top{align-items:flex-start;flex-direction:column;gap:12px}iframe{min-height:500px}}
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Note Details | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            padding: 28px;
+            font-family: Arial, sans-serif;
+            color: #172033;
+            background: #f6f7fb;
+        }
+
+        .page {
+            max-width: 1050px;
+            margin: auto;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back,
+        .open-pdf {
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back {
+            color: #4f46e5;
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+
+        .open-pdf {
+            display: none;
+            background: #4f46e5;
+            color: white;
+        }
+
+        .open-pdf.visible {
+            display: inline-block;
+        }
+
+        .state {
+            padding: 35px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: white;
+            color: #697386;
+            text-align: center;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.visible {
+            display: block;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            padding: 22px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+        }
+
+        .note-title {
+            margin-bottom: 9px;
+            overflow-wrap: anywhere;
+            font-size: 26px;
+        }
+
+        .owner {
+            margin-bottom: 18px;
+            color: #697386;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .pill {
+            padding: 8px 10px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .pdf-frame {
+            width: 100%;
+            min-height: 650px;
+            border: none;
+            border-radius: 14px;
+            background: #eef2f7;
+        }
+
+        .side-card h2,
+        .comments-card h2 {
+            margin-bottom: 14px;
+            font-size: 19px;
+        }
+
+        .stars {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .star {
+            height: 42px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: white;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .star.selected {
+            border-color: #fbbf24;
+            background: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .primary-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .primary-button:disabled {
+            cursor: not-allowed;
+            background: #a5b4fc;
+        }
+
+        .small-message {
+            margin-top: 10px;
+            color: #697386;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .comments-card {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 95px;
+            margin-bottom: 10px;
+            padding: 12px;
+            resize: vertical;
+            border: 1px solid #dbe2ea;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .comments-status {
+            margin-top: 15px;
+            color: #697386;
+            font-size: 13px;
+        }
+
+        .comments-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .comment {
+            padding: 13px;
+            border-radius: 11px;
+            background: #f8fafc;
+        }
+
+        .comment-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .comment-user {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .comment-email {
+            margin-top: 3px;
+            color: #697386;
+            font-size: 11px;
+        }
+
+        .comment-message {
+            margin-top: 8px;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .delete-comment {
+            border: none;
+            background: transparent;
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .page-message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .page-message.error {
+            display: block;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .page-message.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        @media (max-width: 800px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 16px;
+            }
+
+            .top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .top-left {
+                width: 100%;
+            }
+
+            .open-pdf.visible {
+                width: 100%;
+                text-align: center;
+            }
+
+            .pdf-frame {
+                min-height: 500px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<main class="page">
-<div class="top"><div><a class="back" href="javascript:history.back()">← Back</a><h1>Note Details</h1></div><a id="open" class="open" target="_blank" rel="noopener noreferrer">Open PDF</a></div>
-<div id="state" class="message">Loading note...</div>
-<section id="content" class="grid" style="display:none">
-<div>
-<article class="card">
-<h2 id="title"></h2><p id="owner" class="owner"></p>
-<div class="meta"><span id="visibility" class="pill"></span><span id="rating" class="pill"></span></div>
-<iframe id="frame" title="PDF preview"></iframe>
-</article>
-<article class="card" style="margin-top:20px">
-<h2>Comments <span id="count"></span></h2>
-<form id="commentForm"><textarea id="commentInput" maxlength="500" placeholder="Write a comment..." required></textarea><button id="commentButton" class="primary" type="submit">Add comment</button></form>
-<div id="commentsStatus" class="owner">Loading comments...</div><div id="comments" class="comments"></div>
-</article>
-</div>
-<aside class="card">
-<h2>Rate this note</h2>
-<div class="stars"><button class="star" data-value="1">★</button><button class="star" data-value="2">★</button><button class="star" data-value="3">★</button><button class="star" data-value="4">★</button><button class="star" data-value="5">★</button></div>
-<button id="rateButton" class="primary" disabled>Submit rating</button>
-<p id="rateMessage" class="owner">Select a rating.</p>
-</aside>
-</section>
-</main>
-<script>
-const API_BASE_URL=window.location.origin,token=localStorage.getItem("token"),noteId=new URLSearchParams(location.search).get("id");
-const state=document.getElementById("state"),content=document.getElementById("content"),comments=document.getElementById("comments"),commentsStatus=document.getElementById("commentsStatus"),count=document.getElementById("count");
-let selectedRating=0,currentUserId=null;
-function logout(){localStorage.removeItem("token");location.replace("login.html")}
-function decodeId(){try{return JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).userID?.toString()}catch{return null}}
-function fileName(url){try{return decodeURIComponent(new URL(url).pathname.split("/").pop())||"Note"}catch{return"Note"}}
-async function api(url,options={}){const response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${token}`}});if(response.status===401)return logout();const text=await response.text();let data;try{data=JSON.parse(text)}catch{data={message:text}}if(!response.ok)throw new Error(data.message||"Request failed");return data}
-async function loadNote(){
- if(!token)return logout();if(!noteId){state.textContent="No note selected.";return}
- try{
-  const note=await api(`${API_BASE_URL}/user/notes/${encodeURIComponent(noteId)}`);
-  document.getElementById("title").textContent=fileName(note.noteUrl);
-  document.getElementById("owner").textContent=`By ${note.user?.username||"Unknown"} (${note.user?.email||"No email"})`;
-  document.getElementById("visibility").textContent=note.visibility;
-  document.getElementById("rating").textContent=`★ ${Number(note.rating||0).toFixed(2)}`;
-  document.getElementById("frame").src=note.noteUrl;
-  const open=document.getElementById("open");open.href=note.noteUrl;open.classList.add("visible");
-  state.style.display="none";content.style.display="grid";await loadComments();
- }catch(error){state.textContent=error.message}
-}
-async function loadComments(){
- comments.innerHTML="";commentsStatus.style.display="block";commentsStatus.textContent="Loading comments...";
- try{
-  const data=await api(`${API_BASE_URL}/user/comments/get`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId})});
-  const list=Array.isArray(data.comments)?data.comments:[];count.textContent=`(${list.length})`;
-  if(!list.length){commentsStatus.textContent="No comments yet.";return}
-  commentsStatus.style.display="none";
-  list.forEach(item=>{
-   const box=document.createElement("div");box.className="comment";
-   const name=document.createElement("strong");name.textContent=item.user?.username||"Unknown user";
-   const message=document.createElement("p");message.textContent=item.message||"";
-   const ownerId=(item.user?._id||item.user)?.toString();
-   if(currentUserId&&ownerId===currentUserId){const del=document.createElement("button");del.className="delete";del.textContent="Delete";del.onclick=()=>deleteComment(item._id);box.appendChild(del)}
-   box.append(name,message);comments.appendChild(box);
-  });
- }catch(error){commentsStatus.textContent=error.message}
-}
-async function deleteComment(commentId){if(!confirm("Delete this comment?"))return;try{await api(`${API_BASE_URL}/user/comments/delete`,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({commentId})});loadComments()}catch(error){alert(error.message)}}
-document.getElementById("commentForm").addEventListener("submit",async event=>{
- event.preventDefault();const input=document.getElementById("commentInput"),button=document.getElementById("commentButton"),message=input.value.trim();if(!message)return;
- button.disabled=true;try{await api(`${API_BASE_URL}/user/comments/add`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId,message})});input.value="";loadComments()}catch(error){alert(error.message)}finally{button.disabled=false}
-});
-document.querySelectorAll(".star").forEach(button=>button.onclick=()=>{selectedRating=Number(button.dataset.value);document.querySelectorAll(".star").forEach(star=>star.classList.toggle("selected",Number(star.dataset.value)<=selectedRating));document.getElementById("rateButton").disabled=false});
-document.getElementById("rateButton").onclick=async()=>{
- const button=document.getElementById("rateButton");button.disabled=true;
- try{const data=await api(`${API_BASE_URL}/user/notes/rate`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId,rating:selectedRating})});document.getElementById("rating").textContent=`★ ${Number(data.noteAverageRating||0).toFixed(2)}`;document.getElementById("rateMessage").textContent=data.message||"Rating saved"}catch(error){document.getElementById("rateMessage").textContent=error.message}finally{button.disabled=false}
-};
-currentUserId=decodeId();loadNote();
-</script>
+    <main class="page">
+        <header class="top">
+            <div class="top-left">
+                <a class="back" href="javascript:history.back()">
+                    ← Back
+                </a>
+
+                <h1>Note Details</h1>
+            </div>
+
+            <a
+                id="openPdfButton"
+                class="open-pdf"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Open PDF
+            </a>
+        </header>
+
+        <div
+            id="pageMessage"
+            class="page-message"
+        ></div>
+
+        <div id="state" class="state">
+            Loading note...
+        </div>
+
+        <section id="content" class="content">
+            <div class="grid">
+                <div>
+                    <article class="card">
+                        <h2
+                            id="noteTitle"
+                            class="note-title"
+                        ></h2>
+
+                        <p
+                            id="ownerDetails"
+                            class="owner"
+                        ></p>
+
+                        <div class="meta">
+                            <span
+                                id="visibility"
+                                class="pill"
+                            ></span>
+
+                            <span
+                                id="averageRating"
+                                class="pill"
+                            ></span>
+                        </div>
+
+                        <iframe
+                            id="pdfFrame"
+                            class="pdf-frame"
+                            title="PDF preview"
+                        ></iframe>
+                    </article>
+
+                    <article class="card comments-card">
+                        <h2>
+                            Comments
+                            <span id="commentCount"></span>
+                        </h2>
+
+                        <form id="commentForm">
+                            <textarea
+                                id="commentInput"
+                                maxlength="500"
+                                placeholder="Write a comment..."
+                                required
+                            ></textarea>
+
+                            <button
+                                id="commentButton"
+                                class="primary-button"
+                                type="submit"
+                            >
+                                Add comment
+                            </button>
+                        </form>
+
+                        <p
+                            id="commentsStatus"
+                            class="comments-status"
+                        >
+                            Loading comments...
+                        </p>
+
+                        <div
+                            id="commentsList"
+                            class="comments-list"
+                        ></div>
+                    </article>
+                </div>
+
+                <aside class="card side-card">
+                    <h2>Rate this note</h2>
+
+                    <div class="stars">
+                        <button
+                            class="star"
+                            type="button"
+                            data-rating="1"
+                        >
+                            ★
+                        </button>
+
+                        <button
+                            class="star"
+                            type="button"
+                            data-rating="2"
+                        >
+                            ★
+                        </button>
+
+                        <button
+                            class="star"
+                            type="button"
+                            data-rating="3"
+                        >
+                            ★
+                        </button>
+
+                        <button
+                            class="star"
+                            type="button"
+                            data-rating="4"
+                        >
+                            ★
+                        </button>
+
+                        <button
+                            class="star"
+                            type="button"
+                            data-rating="5"
+                        >
+                            ★
+                        </button>
+                    </div>
+
+                    <button
+                        id="submitRatingButton"
+                        class="primary-button"
+                        type="button"
+                        disabled
+                    >
+                        Submit rating
+                    </button>
+
+                    <p
+                        id="ratingMessage"
+                        class="small-message"
+                    >
+                        Select a rating between 1 and 5.
+                    </p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        const token = localStorage.getItem("token");
+
+        const state = document.getElementById("state");
+        const content = document.getElementById("content");
+        const pageMessage = document.getElementById("pageMessage");
+
+        const noteTitle = document.getElementById("noteTitle");
+        const ownerDetails = document.getElementById("ownerDetails");
+        const visibility = document.getElementById("visibility");
+        const averageRating = document.getElementById("averageRating");
+        const pdfFrame = document.getElementById("pdfFrame");
+        const openPdfButton = document.getElementById("openPdfButton");
+
+        const commentForm = document.getElementById("commentForm");
+        const commentInput = document.getElementById("commentInput");
+        const commentButton = document.getElementById("commentButton");
+        const commentsStatus = document.getElementById("commentsStatus");
+        const commentsList = document.getElementById("commentsList");
+        const commentCount = document.getElementById("commentCount");
+
+        const ratingButtons = Array.from(
+            document.querySelectorAll(".star")
+        );
+
+        const submitRatingButton =
+            document.getElementById("submitRatingButton");
+
+        const ratingMessage =
+            document.getElementById("ratingMessage");
+
+        const noteId =
+            new URLSearchParams(window.location.search).get("id");
+
+        let selectedRating = 0;
+        let currentUserId = null;
+
+        if (
+            !noteId ||
+            noteId === "undefined" ||
+            noteId === "null"
+        ) {
+            state.textContent = "Invalid note link.";
+        } else {
+            startPage();
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.replace("login.html");
+        }
+
+        function showPageMessage(message, type) {
+            pageMessage.textContent = message;
+            pageMessage.className =
+                `page-message ${type}`;
+        }
+
+        function hidePageMessage() {
+            pageMessage.textContent = "";
+            pageMessage.className =
+                "page-message";
+        }
+
+        function getFileName(url) {
+            try {
+                const parsedUrl = new URL(url);
+                const parts = parsedUrl.pathname.split("/");
+                const name = parts.pop();
+
+                return decodeURIComponent(name) || "Note";
+
+            } catch (error) {
+                return "Note";
+            }
+        }
+
+        function getCurrentUserId() {
+            try {
+                const payloadPart =
+                    token.split(".")[1]
+                        .replace(/-/g, "+")
+                        .replace(/_/g, "/");
+
+                const payload = JSON.parse(
+                    atob(payloadPart)
+                );
+
+                return payload.userID
+                    ? payload.userID.toString()
+                    : null;
+
+            } catch (error) {
+                return null;
+            }
+        }
+
+        async function api(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+
+                headers: {
+                    ...(options.headers || {}),
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 401) {
+                logout();
+                return null;
+            }
+
+            const responseText = await response.text();
+
+            let data;
+
+            try {
+                data = JSON.parse(responseText);
+            } catch (error) {
+                data = {
+                    message: responseText
+                };
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Request failed"
+                );
+            }
+
+            return data;
+        }
+
+        async function startPage() {
+            if (!token) {
+                logout();
+                return;
+            }
+
+            currentUserId = getCurrentUserId();
+
+            try {
+                const note = await api(
+                    `${API_BASE_URL}/user/notes/${encodeURIComponent(noteId)}`
+                );
+
+                if (!note) {
+                    return;
+                }
+
+                displayNote(note);
+
+                await loadComments();
+
+            } catch (error) {
+                state.textContent = error.message;
+            }
+        }
+
+        function displayNote(note) {
+            noteTitle.textContent =
+                getFileName(note.noteUrl);
+
+            ownerDetails.textContent =
+                `By ${note.user?.username || "Unknown user"} ` +
+                `(${note.user?.email || "Email unavailable"})`;
+
+            visibility.textContent =
+                note.visibility || "Unknown visibility";
+
+            averageRating.textContent =
+                `★ ${Number(note.rating || 0).toFixed(2)}`;
+
+            pdfFrame.src = note.noteUrl;
+
+            openPdfButton.href = note.noteUrl;
+            openPdfButton.classList.add("visible");
+
+            state.style.display = "none";
+            content.classList.add("visible");
+        }
+
+        async function loadComments() {
+            commentsList.innerHTML = "";
+
+            commentsStatus.style.display = "block";
+            commentsStatus.textContent =
+                "Loading comments...";
+
+            try {
+                const data = await api(
+                    `${API_BASE_URL}/user/comments/get`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            noteId: noteId
+                        })
+                    }
+                );
+
+                if (!data) {
+                    return;
+                }
+
+                const comments = Array.isArray(data.comments)
+                    ? data.comments
+                    : [];
+
+                commentCount.textContent =
+                    `(${comments.length})`;
+
+                if (comments.length === 0) {
+                    commentsStatus.textContent =
+                        "No comments yet.";
+
+                    return;
+                }
+
+                commentsStatus.style.display = "none";
+
+                comments.forEach(function (comment) {
+                    commentsList.appendChild(
+                        createComment(comment)
+                    );
+                });
+
+            } catch (error) {
+                commentsStatus.textContent =
+                    error.message;
+            }
+        }
+
+        function createComment(comment) {
+            const commentBox =
+                document.createElement("article");
+
+            commentBox.className = "comment";
+
+            const commentTop =
+                document.createElement("div");
+
+            commentTop.className = "comment-top";
+
+            const userBox =
+                document.createElement("div");
+
+            const username =
+                document.createElement("p");
+
+            username.className = "comment-user";
+
+            username.textContent =
+                comment.user?.username ||
+                "Unknown user";
+
+            const email =
+                document.createElement("p");
+
+            email.className = "comment-email";
+
+            email.textContent =
+                comment.user?.email ||
+                "Email unavailable";
+
+            userBox.append(
+                username,
+                email
+            );
+
+            commentTop.appendChild(userBox);
+
+            const commentUserId =
+                comment.user?._id ||
+                comment.user;
+
+            if (
+                currentUserId &&
+                commentUserId &&
+                commentUserId.toString() === currentUserId
+            ) {
+                const deleteButton =
+                    document.createElement("button");
+
+                deleteButton.type = "button";
+                deleteButton.className =
+                    "delete-comment";
+
+                deleteButton.textContent =
+                    "Delete";
+
+                deleteButton.addEventListener(
+                    "click",
+                    function () {
+                        deleteComment(comment._id);
+                    }
+                );
+
+                commentTop.appendChild(deleteButton);
+            }
+
+            const message =
+                document.createElement("p");
+
+            message.className =
+                "comment-message";
+
+            message.textContent =
+                comment.message || "";
+
+            commentBox.append(
+                commentTop,
+                message
+            );
+
+            return commentBox;
+        }
+
+        async function deleteComment(commentId) {
+            const confirmed = window.confirm(
+                "Delete this comment?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                await api(
+                    `${API_BASE_URL}/user/comments/delete`,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            commentId: commentId
+                        })
+                    }
+                );
+
+                await loadComments();
+
+            } catch (error) {
+                showPageMessage(
+                    error.message,
+                    "error"
+                );
+            }
+        }
+
+        commentForm.addEventListener(
+            "submit",
+            async function (event) {
+                event.preventDefault();
+
+                hidePageMessage();
+
+                const message =
+                    commentInput.value.trim();
+
+                if (!message) {
+                    showPageMessage(
+                        "Please write a comment.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                commentButton.disabled = true;
+                commentButton.textContent =
+                    "Adding...";
+
+                try {
+                    const data = await api(
+                        `${API_BASE_URL}/user/comments/add`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                noteId: noteId,
+                                message: message
+                            })
+                        }
+                    );
+
+                    if (!data) {
+                        return;
+                    }
+
+                    commentInput.value = "";
+
+                    showPageMessage(
+                        data.message || "Comment added.",
+                        "success"
+                    );
+
+                    await loadComments();
+
+                } catch (error) {
+                    showPageMessage(
+                        error.message,
+                        "error"
+                    );
+
+                } finally {
+                    commentButton.disabled = false;
+                    commentButton.textContent =
+                        "Add comment";
+                }
+            }
+        );
+
+        ratingButtons.forEach(function (button) {
+            button.addEventListener(
+                "click",
+                function () {
+                    selectedRating =
+                        Number(button.dataset.rating);
+
+                    ratingButtons.forEach(
+                        function (currentButton) {
+                            const currentValue =
+                                Number(
+                                    currentButton.dataset.rating
+                                );
+
+                            currentButton.classList.toggle(
+                                "selected",
+                                currentValue <= selectedRating
+                            );
+                        }
+                    );
+
+                    submitRatingButton.disabled = false;
+
+                    ratingMessage.textContent =
+                        `Selected ${selectedRating} out of 5.`;
+                }
+            );
+        });
+
+        submitRatingButton.addEventListener(
+            "click",
+            async function () {
+                if (!selectedRating) {
+                    return;
+                }
+
+                submitRatingButton.disabled = true;
+                submitRatingButton.textContent =
+                    "Submitting...";
+
+                try {
+                    const data = await api(
+                        `${API_BASE_URL}/user/notes/rate`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                noteId: noteId,
+                                rating: selectedRating
+                            })
+                        }
+                    );
+
+                    if (!data) {
+                        return;
+                    }
+
+                    averageRating.textContent =
+                        `★ ${Number(
+                            data.noteAverageRating || 0
+                        ).toFixed(2)}`;
+
+                    ratingMessage.textContent =
+                        data.message ||
+                        "Rating saved.";
+
+                } catch (error) {
+                    ratingMessage.textContent =
+                        error.message;
+
+                } finally {
+                    submitRatingButton.disabled = false;
+                    submitRatingButton.textContent =
+                        "Submit rating";
+                }
+            }
+        );
+    </script>
 </body>
+
 </html>

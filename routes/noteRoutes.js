@@ -22,26 +22,18 @@ router.post(
     uploadfile
 );
 
-router.get(
-    "/user/notes/getnotesall",
-    GetNotesAll
-);
+router.get("/user/notes/getnotesall", GetNotesAll);
 
-router.get(
-    "/user/notes/received",
-    GetReceivedNotes
-);
+router.get("/user/notes/received", GetReceivedNotes);
 
-router.get(
-    "/user/notes/search",
-    SearchNotes
-);
+router.get("/user/notes/search", SearchNotes);
 
 router.get(
     "/user/notes/:id",
     canAccessNote,
     GetNotesone
 );
+
 
 router.delete(
     "/user/notes/:id",

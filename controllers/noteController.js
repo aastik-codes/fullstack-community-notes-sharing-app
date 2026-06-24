@@ -139,7 +139,7 @@ export async function GetNotesone(req, res) {
         res.status(200).json(note);
 
     } catch (error) {
-        console.error(error);
+        console.error("Get note error:", error);
 
         res.status(500).json({
             message: "Server Error"

@@ -1,44 +1,608 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Notes | Notes</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f6f7fb;color:#172033;padding:30px}.page{max-width:1150px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.links{display:flex;gap:12px}.link{padding:11px 14px;border-radius:10px;background:#4f46e5;color:#fff;text-decoration:none;font-weight:700}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{padding:19px;border:1px solid #e2e8f0;border-radius:18px;background:#fff}.pdf{height:120px;display:grid;place-items:center;margin-bottom:15px;border-radius:13px;background:#eef2ff;color:#4f46e5;font-size:24px;font-weight:800}.meta{color:#697386;font-size:12px;margin:7px 0 13px}.controls{display:grid;gap:9px}.controls select,.controls input{width:100%;padding:10px;border:1px solid #dbe2ea;border-radius:9px}.row{display:flex;gap:8px}.row button,.open{flex:1;padding:10px;border:0;border-radius:9px;background:#eef2ff;color:#4338ca;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}.delete{background:#fef2f2!important;color:#b91c1c!important}.state{padding:35px;background:#fff;border-radius:18px;text-align:center;color:#697386}@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){body{padding:18px}.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column;gap:14px}.links{flex-wrap:wrap}}
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Notes | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            color: #172033;
+            background: #f6f7fb;
+        }
+
+        .page {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .top p {
+            margin-top: 7px;
+            color: #697386;
+        }
+
+        .links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .link {
+            padding: 11px 14px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            padding: 19px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: white;
+        }
+
+        .pdf {
+            height: 120px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 15px;
+            border-radius: 13px;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .title {
+            overflow: hidden;
+            font-size: 17px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .meta {
+            margin: 7px 0 13px;
+            color: #697386;
+            font-size: 12px;
+        }
+
+        .controls {
+            display: grid;
+            gap: 9px;
+        }
+
+        .controls select,
+        .controls input {
+            width: 100%;
+            min-width: 0;
+            padding: 10px;
+            border: 1px solid #dbe2ea;
+            border-radius: 9px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .row button,
+        .open {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 9px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .delete {
+            background: #fef2f2 !important;
+            color: #b91c1c !important;
+        }
+
+        .shared-user {
+            flex: 1;
+            overflow: hidden;
+            font-size: 12px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .state {
+            padding: 35px;
+            border-radius: 18px;
+            background: white;
+            color: #697386;
+            text-align: center;
+        }
+
+        @media (max-width: 850px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 18px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .links {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<main class="page">
-<div class="top"><div><h1>My Notes</h1><p>Manage visibility and sharing.</p></div><div class="links"><a class="link" href="dashboard.html">Dashboard</a><a class="link" href="upload-note.html">Upload</a><a class="link" href="received.html">Received</a></div></div>
-<div id="state" class="state">Loading notes...</div><section id="grid" class="grid"></section>
-</main>
-<script>
-const API_BASE_URL=window.location.origin,token=localStorage.getItem("token"),state=document.getElementById("state"),grid=document.getElementById("grid");
-function logout(){localStorage.removeItem("token");window.location.replace("login.html")}
-function fileName(url){try{return decodeURIComponent(new URL(url).pathname.split("/").pop())||"Note"}catch{return"Note"}}
-async function api(url,options={}){const response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${token}`}});if(response.status===401)return logout();const text=await response.text();let data;try{data=JSON.parse(text)}catch{data={message:text}}if(!response.ok)throw new Error(data.message||"Request failed");return data}
-async function changeVisibility(noteId,value){await api(`${API_BASE_URL}/user/notes/visibility`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId,visibility:value})});alert("Visibility updated")}
-async function addUser(noteId,input){const email=input.value.trim();if(!email)return;await api(`${API_BASE_URL}/user/notes/access/add`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId,email})});input.value="";alert("Access added");load()}
-async function removeUser(noteId,email){await api(`${API_BASE_URL}/user/notes/access/remove`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({noteId,email})});load()}
-async function deleteNote(noteId){if(!confirm("Delete this note?"))return;await api(`${API_BASE_URL}/user/notes/${noteId}`,{method:"DELETE"});load()}
-function makeCard(note){
- const card=document.createElement("article");card.className="card";
- const pdf=document.createElement("div");pdf.className="pdf";pdf.textContent="PDF";
- const title=document.createElement("h2");title.textContent=fileName(note.noteUrl);
- const meta=document.createElement("p");meta.className="meta";meta.textContent=`Rating ${Number(note.rating||0).toFixed(2)}`;
- const controls=document.createElement("div");controls.className="controls";
- const select=document.createElement("select");["private","public","shared"].forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v[0].toUpperCase()+v.slice(1);o.selected=note.visibility===v;select.appendChild(o)});select.onchange=()=>changeVisibility(note._id,select.value);
- const input=document.createElement("input");input.type="email";input.placeholder="Add user email";
- const add=document.createElement("button");add.textContent="Add user";add.onclick=()=>addUser(note._id,input);
- const row=document.createElement("div");row.className="row";row.append(input,add);
- controls.append(select,row);
- (note.access||[]).forEach(user=>{const r=document.createElement("div");r.className="row";const label=document.createElement("span");label.style.flex="1";label.style.fontSize="12px";label.textContent=user.email;const remove=document.createElement("button");remove.textContent="Remove";remove.onclick=()=>removeUser(note._id,user.email);r.append(label,remove);controls.appendChild(r)});
- const actions=document.createElement("div");actions.className="row";const open=document.createElement("a");open.className="open";open.href=`note-details.html?id=${note._id}`;open.textContent="Open";const del=document.createElement("button");del.className="delete";del.textContent="Delete";del.onclick=()=>deleteNote(note._id);actions.append(open,del);controls.append(actions);
- card.append(pdf,title,meta,controls);return card
-}
-async function load(){if(!token)return logout();grid.innerHTML="";state.style.display="block";state.textContent="Loading notes...";try{const notes=await api(`${API_BASE_URL}/user/notes/getnotesall`);if(!notes.length){state.textContent="No notes uploaded yet.";return}state.style.display="none";notes.forEach(note=>grid.appendChild(makeCard(note)))}catch(error){state.textContent=error.message}}
-load();
-</script>
+    <main class="page">
+        <div class="top">
+            <div>
+                <h1>My Notes</h1>
+                <p>Manage visibility and sharing.</p>
+            </div>
+
+            <div class="links">
+                <a class="link" href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a class="link" href="upload-note.html">
+                    Upload
+                </a>
+
+                <a class="link" href="received.html">
+                    Received
+                </a>
+            </div>
+        </div>
+
+        <div id="state" class="state">
+            Loading notes...
+        </div>
+
+        <section id="grid" class="grid"></section>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        const token = localStorage.getItem("token");
+
+        const state = document.getElementById("state");
+        const grid = document.getElementById("grid");
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.replace("login.html");
+        }
+
+        function getFileName(url) {
+            try {
+                const parsedUrl = new URL(url);
+                const parts = parsedUrl.pathname.split("/");
+                const name = parts.pop();
+
+                return decodeURIComponent(name) || "Note";
+
+            } catch (error) {
+                return "Note";
+            }
+        }
+
+        async function api(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+
+                headers: {
+                    ...(options.headers || {}),
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 401) {
+                logout();
+                return null;
+            }
+
+            const responseText = await response.text();
+
+            let data;
+
+            try {
+                data = JSON.parse(responseText);
+            } catch (error) {
+                data = {
+                    message: responseText
+                };
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Request failed"
+                );
+            }
+
+            return data;
+        }
+
+        async function changeVisibility(noteId, visibility) {
+            try {
+                await api(
+                    `${API_BASE_URL}/user/notes/visibility`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            noteId: noteId,
+                            visibility: visibility
+                        })
+                    }
+                );
+
+                alert("Visibility updated");
+
+            } catch (error) {
+                alert(error.message);
+                loadNotes();
+            }
+        }
+
+        async function addUser(noteId, input) {
+            const email = input.value.trim().toLowerCase();
+
+            if (!email) {
+                alert("Enter a user email");
+                return;
+            }
+
+            try {
+                await api(
+                    `${API_BASE_URL}/user/notes/access/add`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            noteId: noteId,
+                            email: email
+                        })
+                    }
+                );
+
+                input.value = "";
+
+                alert("Access added");
+
+                loadNotes();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function removeUser(noteId, email) {
+            try {
+                await api(
+                    `${API_BASE_URL}/user/notes/access/remove`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            noteId: noteId,
+                            email: email
+                        })
+                    }
+                );
+
+                loadNotes();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function deleteNote(noteId) {
+            const confirmed = window.confirm(
+                "Delete this note?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                await api(
+                    `${API_BASE_URL}/user/notes/${encodeURIComponent(noteId)}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                loadNotes();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function makeCard(note) {
+            const card = document.createElement("article");
+            card.className = "card";
+
+            const pdf = document.createElement("div");
+            pdf.className = "pdf";
+            pdf.textContent = "PDF";
+
+            const title = document.createElement("h2");
+            title.className = "title";
+            title.textContent = getFileName(note.noteUrl);
+            title.title = title.textContent;
+
+            const meta = document.createElement("p");
+            meta.className = "meta";
+            meta.textContent =
+                `Rating: ${Number(note.rating || 0).toFixed(2)}`;
+
+            const controls = document.createElement("div");
+            controls.className = "controls";
+
+            const visibilitySelect =
+                document.createElement("select");
+
+            ["private", "public", "shared"].forEach(
+                function (visibility) {
+                    const option =
+                        document.createElement("option");
+
+                    option.value = visibility;
+
+                    option.textContent =
+                        visibility.charAt(0).toUpperCase() +
+                        visibility.slice(1);
+
+                    option.selected =
+                        note.visibility === visibility;
+
+                    visibilitySelect.appendChild(option);
+                }
+            );
+
+            visibilitySelect.addEventListener(
+                "change",
+                function () {
+                    changeVisibility(
+                        note._id,
+                        visibilitySelect.value
+                    );
+                }
+            );
+
+            controls.appendChild(visibilitySelect);
+
+            const shareRow = document.createElement("div");
+            shareRow.className = "row";
+
+            const emailInput =
+                document.createElement("input");
+
+            emailInput.type = "email";
+            emailInput.placeholder = "Add user email";
+
+            const addButton =
+                document.createElement("button");
+
+            addButton.type = "button";
+            addButton.textContent = "Add user";
+
+            addButton.addEventListener(
+                "click",
+                function () {
+                    addUser(note._id, emailInput);
+                }
+            );
+
+            shareRow.append(emailInput, addButton);
+
+            controls.appendChild(shareRow);
+
+            const accessUsers = Array.isArray(note.access)
+                ? note.access
+                : [];
+
+            accessUsers.forEach(function (user) {
+                if (!user || !user.email) {
+                    return;
+                }
+
+                const userRow =
+                    document.createElement("div");
+
+                userRow.className = "row";
+
+                const userEmail =
+                    document.createElement("span");
+
+                userEmail.className = "shared-user";
+                userEmail.textContent = user.email;
+                userEmail.title = user.email;
+
+                const removeButton =
+                    document.createElement("button");
+
+                removeButton.type = "button";
+                removeButton.textContent = "Remove";
+
+                removeButton.addEventListener(
+                    "click",
+                    function () {
+                        removeUser(
+                            note._id,
+                            user.email
+                        );
+                    }
+                );
+
+                userRow.append(
+                    userEmail,
+                    removeButton
+                );
+
+                controls.appendChild(userRow);
+            });
+
+            const actions =
+                document.createElement("div");
+
+            actions.className = "row";
+
+            const openButton =
+                document.createElement("a");
+
+            openButton.className = "open";
+
+            openButton.href =
+                `note-details.html?id=${encodeURIComponent(note._id)}`;
+
+            openButton.textContent = "Open";
+
+            const deleteButton =
+                document.createElement("button");
+
+            deleteButton.type = "button";
+            deleteButton.className = "delete";
+            deleteButton.textContent = "Delete";
+
+            deleteButton.addEventListener(
+                "click",
+                function () {
+                    deleteNote(note._id);
+                }
+            );
+
+            actions.append(
+                openButton,
+                deleteButton
+            );
+
+            controls.appendChild(actions);
+
+            card.append(
+                pdf,
+                title,
+                meta,
+                controls
+            );
+
+            return card;
+        }
+
+        async function loadNotes() {
+            if (!token) {
+                logout();
+                return;
+            }
+
+            grid.innerHTML = "";
+
+            state.style.display = "block";
+            state.textContent = "Loading notes...";
+
+            try {
+                const notes = await api(
+                    `${API_BASE_URL}/user/notes/getnotesall`
+                );
+
+                if (!notes) {
+                    return;
+                }
+
+                if (!Array.isArray(notes)) {
+                    throw new Error(
+                        "Invalid notes data received"
+                    );
+                }
+
+                if (notes.length === 0) {
+                    state.textContent =
+                        "No notes uploaded yet.";
+
+                    return;
+                }
+
+                state.style.display = "none";
+
+                notes.forEach(function (note) {
+                    if (!note || !note._id) {
+                        return;
+                    }
+
+                    grid.appendChild(
+                        makeCard(note)
+                    );
+                });
+
+            } catch (error) {
+                state.style.display = "block";
+                state.textContent = error.message;
+            }
+        }
+
+        loadNotes();
+    </script>
 </body>
+
 </html>
