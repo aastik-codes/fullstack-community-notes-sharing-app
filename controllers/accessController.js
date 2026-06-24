@@ -12,12 +12,12 @@ export async function AddAccess(req,res){
 
         if(!note){
             return res.status(404).send("Note not found")
-        }
+        } // 404 -> server speicific request kiya  hua resource nahi dhund paya
 
 
         if(note.user !== req.user){
             return res.status(403).send("Not owner")
-        }
+        } // forbidden from requesting that data
 
 
         const User = await user.findOne({email})

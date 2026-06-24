@@ -1,5 +1,7 @@
 import express from 'express'
-import { authMiddleware } from '../middleware/authMIddleware.js'
+import { authMiddleware } from '../middleware/authMiddleware.js'
+
+
 import {AddAccess,RemoveAccess,ChangeVisibility} from '../controllers/accessController.js'
 const Arouter = express.Router()
 Arouter.use(authMiddleware)

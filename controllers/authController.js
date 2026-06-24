@@ -89,7 +89,7 @@ export async function forgot(req, res) {
 }
 
 export async function updatepass(req, res) {
-    const { token, newpass } = req.body
+    const { token, newpass } = req.body || {};
     let found = await user.findOne({ token: token })
 
     if (found) {

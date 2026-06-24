@@ -11,7 +11,7 @@ export async function canAccessNote(req,res,next){
             return res.status(404).send("Note not found")
         }
 
-        if(note.user  === req.user){
+        if(note.visibility === "private" && note.user  === req.user){
 
             req.note = note
 

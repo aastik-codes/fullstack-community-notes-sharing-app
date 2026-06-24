@@ -1,6 +1,6 @@
 import express from 'express';
-import { authMiddleware } from '../middleware/authMIddleware.js';
-import { Userprofile,UpdateProfile, Dashboard } from '../controllers/usercontrollers.js';
+import { authMiddleware } from '../middleware/authMiddleware.js'
+import { Userprofile,UpdateProfile, Dashboard } from '../controllers/userController.js';
 const Urouter = express.Router()
 Urouter.use(authMiddleware)
 
