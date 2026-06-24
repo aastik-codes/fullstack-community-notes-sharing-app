@@ -1,18 +1,20 @@
-import express from 'express';
-import { authMiddleware } from '../middleware/authMiddleware.js'
-import { Userprofile,UpdateProfile, Dashboard } from '../controllers/userController.js';
-const Urouter = express.Router()
-Urouter.use(authMiddleware)
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
-Urouter.get('/user/profile',(req,res)=>{
-    Userprofile(req,res)
-})
+import {
+    Userprofile,
+    UpdateProfile,
+    Dashboard,
+    FindUserByEmail
+} from "../controllers/userController.js";
 
-Urouter.post('/user/profile/update',(req,res)=>{
-    UpdateProfile(req,res)
-})
+const router = express.Router();
 
-Urouter.get('/user/dashboard',(req,res)=>{
-    Dashboard(req,res)
-}) 
-export default Urouter
+router.use(authMiddleware);
+
+router.get("/user/profile", Userprofile);
+router.post("/user/profile/update", UpdateProfile);
+router.get("/user/dashboard", Dashboard);
+router.get("/user/find-by-email", FindUserByEmail);
+
+export default router;

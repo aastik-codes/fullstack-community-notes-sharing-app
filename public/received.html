@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Received Notes | Notes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f6f7fb;color:#172033;padding:30px}.page{max-width:1100px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.back{color:#4f46e5;text-decoration:none;font-weight:700}h1{margin-bottom:7px}.sub{color:#697386}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{padding:20px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.05)}.pdf{height:130px;display:grid;place-items:center;margin-bottom:17px;border-radius:14px;background:#eef2ff;color:#4f46e5;font-size:25px;font-weight:800}.owner{color:#697386;font-size:13px;margin:7px 0 17px}.open{display:block;text-align:center;padding:11px;border-radius:10px;background:#4f46e5;color:#fff;text-decoration:none;font-weight:700}.state{padding:35px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;text-align:center;color:#697386}.hidden{display:none}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){body{padding:18px}.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column;gap:15px}}
+</style>
+</head>
+<body>
+<main class="page">
+<div class="top"><div><h1>Received Notes</h1><p class="sub">Notes shared directly with you.</p></div><a class="back" href="dashboard.html">← Dashboard</a></div>
+<div id="state" class="state">Loading received notes...</div>
+<section id="grid" class="grid"></section>
+</main>
+<script>
+const API_BASE_URL=window.location.origin;
+const token=localStorage.getItem("token");
+const state=document.getElementById("state");
+const grid=document.getElementById("grid");
+function logout(){localStorage.removeItem("token");window.location.replace("login.html")}
+function fileName(url){try{return decodeURIComponent(new URL(url).pathname.split("/").pop())||"Shared note"}catch{return"Shared note"}}
+async function load(){
+    if(!token)return logout();
+    try{
+        const response=await fetch(`${API_BASE_URL}/user/notes/received`,{headers:{Authorization:`Bearer ${token}`}});
+        if(response.status===401)return logout();
+        const text=await response.text();let data;try{data=JSON.parse(text)}catch{throw new Error("Invalid backend response")}
+        if(!response.ok)throw new Error(data.message||"Could not load notes");
+        if(!Array.isArray(data)||data.length===0){state.textContent="No notes have been shared with you yet.";return}
+        state.classList.add("hidden");
+        data.forEach(note=>{
+            const card=document.createElement("article");card.className="card";
+            const pdf=document.createElement("div");pdf.className="pdf";pdf.textContent="PDF";
+            const title=document.createElement("h2");title.textContent=fileName(note.noteUrl);
+            const owner=document.createElement("p");owner.className="owner";owner.textContent=`Shared by ${note.user?.username||"Unknown"} (${note.user?.email||"No email"})`;
+            const open=document.createElement("a");open.className="open";open.href=`note-details.html?id=${encodeURIComponent(note._id)}`;open.textContent="Open note";
+            card.append(pdf,title,owner,open);grid.appendChild(card);
+        });
+    }catch(error){state.textContent=error.message}
+}
+load();
+</script>
+</body>
+</html>

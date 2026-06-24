@@ -1,51 +1,53 @@
-import notes from '../model/notes.js'
+import notes from "../model/notes.js";
 
+export async function canAccessNote(req, res, next) {
+    try {
+        const noteId =
+            req.body.noteId ||
+            req.params.id ||
+            req.query.noteId;
 
-export async function canAccessNote(req,res,next){
-
-    try{
-
-        const note = await notes.findById(req.body.noteId)
-
-        if(!note){
-            return res.status(404).send("Note not found")
+        if (!noteId) {
+            return res.status(400).json({
+                message: "Note ID is required"
+            });
         }
 
-        if(note.visibility === "private" && note.user  === req.user){
+        const note = await notes.findById(noteId);
 
-            req.note = note
-
-            return next()
+        if (!note) {
+            return res.status(404).json({
+                message: "Note not found"
+            });
         }
 
-        if(note.visibility === "public"){
+        const isOwner =
+            note.user.toString() === req.user.toString();
 
-            req.note = note
+        const isPublic =
+            note.visibility === "public";
 
-            return next()
-        }
-
-        if(
+        const isShared =
             note.visibility === "shared" &&
             note.access.some(
-                id => id.toString() === req.user
-            )
-        ){
+                id => id.toString() === req.user.toString()
+            );
 
-            req.note = note
-
-            return next()
+        if (!isOwner && !isPublic && !isShared) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
         }
 
+        req.note = note;
 
-        return res.status(403).send("Access denied")
+        next();
 
-    }catch(err){
+    } catch (error) {
+        console.error(error);
 
-        console.error(err)
-
-        res.status(500).send("Server Error")
-
+        res.status(500).json({
+            message: "Server Error"
+        });
     }
-
 }

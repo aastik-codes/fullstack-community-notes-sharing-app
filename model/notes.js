@@ -1,30 +1,21 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const { Schema } = mongoose
-
-const NoteSchema = new Schema(
+const noteSchema = new mongoose.Schema(
     {
-        rating: {
-            type: Number,
-            default: 0
-        },
-
-        access: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "User"
-            }
-        ],
-
         noteUrl: {
             type: String,
             required: true
         },
 
         user: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true
+        },
+
+        rating: {
+            type: Number,
+            default: 0
         },
 
         status: {
@@ -37,9 +28,18 @@ const NoteSchema = new Schema(
             type: String,
             enum: ["public", "private", "shared"],
             default: "private"
-        }
+        },
+
+        access: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            }
+        ]
     },
-{ timestamps: true });
+    {
+        timestamps: true
+    }
+);
 
-
-export default mongoose.model("Note", NoteSchema)
+export default mongoose.model("Note", noteSchema);
