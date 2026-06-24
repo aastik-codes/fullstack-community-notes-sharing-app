@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Marginalia — Browse notes</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --paper:#FAF7F0; --paper-deep:#F0EAD9; --ink:#1C1B19; --ink-soft:#3a3835;
@@ -108,114 +108,42 @@
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <div class="brand"><span class="mark">M.</span> Marginalia</div>
-  <nav>
-    <a href="#">Dashboard</a>
-    <a href="#">My notes</a>
-    <a href="#" class="active">Browse</a>
-    <a href="#">Profile</a>
-  </nav>
-  <div class="avatar">A</div>
+<div class="brand"><span class="mark">M.</span> Marginalia</div>
+<nav>
+<a href="#">Dashboard</a>
+<a href="#">My notes</a>
+<a class="active" href="#">Browse</a>
+<a href="#">Profile</a>
+</nav>
+<div class="avatar">?</div>
 </div>
-
 <main>
-  <div class="page-head">
-    <h1>Browse public notes</h1>
-    <p>Search by uploader's name or email, then sort by rating or recency.</p>
-  </div>
-
-  <div class="search-row">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" placeholder="Search by uploader name or email…">
-    </div>
-    <div class="sort-select">
-      <select>
-        <option>Sort: Highest rated</option>
-        <option>Sort: Lowest rated</option>
-        <option>Sort: Newest first</option>
-        <option>Sort: Oldest first</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="results-line">
-    <span class="count">Showing <b>1–5</b> of <b>43</b> public notes</span>
-    <span class="count">Page <b>1</b> of <b>9</b></span>
-  </div>
-
-  <div class="list">
-
-    <div class="row-card">
-      <div class="file-ico"></div>
-      <div class="row-info">
-        <div class="title">Operating Systems — Scheduling Algorithms</div>
-        <div class="by"><span class="mini-avatar">A</span> Aastik K. · aastik@srmap.edu.in</div>
-      </div>
-      <div class="row-rating"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>4.9 <span class="count">(31)</span></div>
-      <div class="row-date">2 days ago</div>
-      <button class="view-btn">View</button>
-    </div>
-
-    <div class="row-card">
-      <div class="file-ico"></div>
-      <div class="row-info">
-        <div class="title">Algorithms — Dynamic Programming patterns</div>
-        <div class="by"><span class="mini-avatar">R</span> Riya Sharma · riya.s@srmap.edu.in</div>
-      </div>
-      <div class="row-rating"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>4.85 <span class="count">(44)</span></div>
-      <div class="row-date">4 days ago</div>
-      <button class="view-btn">View</button>
-    </div>
-
-    <div class="row-card">
-      <div class="file-ico"></div>
-      <div class="row-info">
-        <div class="title">Computer Networks — OSI vs TCP/IP</div>
-        <div class="by"><span class="mini-avatar">A</span> Aastik K. · aastik@srmap.edu.in</div>
-      </div>
-      <div class="row-rating"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>4.7 <span class="count">(19)</span></div>
-      <div class="row-date">2 weeks ago</div>
-      <button class="view-btn">View</button>
-    </div>
-
-    <div class="row-card">
-      <div class="file-ico"></div>
-      <div class="row-info">
-        <div class="title">DBMS — Normal Forms explained simply</div>
-        <div class="by"><span class="mini-avatar">P</span> Pranav M. · pranav.m@srmap.edu.in</div>
-      </div>
-      <div class="row-rating"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>4.55 <span class="count">(22)</span></div>
-      <div class="row-date">3 weeks ago</div>
-      <button class="view-btn">View</button>
-    </div>
-
-    <div class="row-card">
-      <div class="file-ico"></div>
-      <div class="row-info">
-        <div class="title">Discrete Mathematics — Set Theory basics</div>
-        <div class="by"><span class="mini-avatar">S</span> Sana V. · sana.v@srmap.edu.in</div>
-      </div>
-      <div class="row-rating"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>4.3 <span class="count">(9)</span></div>
-      <div class="row-date">1 month ago</div>
-      <button class="view-btn">View</button>
-    </div>
-
-  </div>
-
-  <div class="pagination">
-    <button class="pg-btn">‹ Prev</button>
-    <button class="pg-btn active">1</button>
-    <button class="pg-btn">2</button>
-    <button class="pg-btn">3</button>
-    <button class="pg-btn dots">···</button>
-    <button class="pg-btn">9</button>
-    <button class="pg-btn">Next ›</button>
-  </div>
+<div class="page-head">
+<h1>Browse public notes</h1>
+<p>Search by uploader's name or email, then sort by rating or recency.</p>
+</div>
+<div class="search-row">
+<div class="search-box">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+<input placeholder="Search by uploader name or email…" type="text"/>
+</div>
+<div class="sort-select">
+<select>
+<option>Sort: Highest rated</option>
+<option>Sort: Lowest rated</option>
+<option>Sort: Newest first</option>
+<option>Sort: Oldest first</option>
+</select>
+</div>
+</div>
+<div class="results-line">
+<span class="count">Loading public notes…</span>
+<span class="count"></span>
+</div>
+<div class="list"><div style="padding:30px;text-align:center;color:var(--pencil);font-size:13.5px;">Loading…</div></div>
+<div class="pagination"></div>
 </main>
-<script type="module" src="/js/05-browse.js"></script>
-
+<script src="/js/05-browse.js" type="module"></script>
 </body>
 </html>

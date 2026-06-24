@@ -1,30 +1,17 @@
 import express from 'express'
 import { authMiddleware } from '../middleware/authMiddleware.js'
+import {
+    AddAccess,
+    RemoveAccess,
+    ChangeVisibility
+} from '../controllers/accessController.js'
 
+const router = express.Router()
 
-import {AddAccess,RemoveAccess,ChangeVisibility} from '../controllers/accessController.js'
-const Arouter = express.Router()
-Arouter.use(authMiddleware)
+router.use(authMiddleware)
 
-Arouter.post(
-    '/user/access/add',
-    (req,res)=>{
-        AddAccess(req,res)
-    }
-)
+router.post('/user/access/add', AddAccess)
+router.post('/user/access/remove', RemoveAccess)
+router.post('/user/access/visibility', ChangeVisibility)
 
-Arouter.post(
-    '/user/access/remove',
-    (req,res)=>{
-        RemoveAccess(req,res)
-    }
-)
-
-Arouter.post(
-    '/user/access/visibility',
-    (req,res)=>{
-        ChangeVisibility(req,res)
-    }
-)
-
-export default Arouter
+export default router

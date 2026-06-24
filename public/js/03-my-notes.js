@@ -1,163 +1,256 @@
-// ── 03-my-notes.js ───────────────────────────────────────────────────────────
-import { requireAuth, api, initNav, logout, toast } from './api.js'
+import {
+    requireAuth,
+    api,
+    initNav,
+    logout,
+    toast,
+    escapeHTML,
+    noteName,
+    formatFileSize,
+    timeAgo,
+    readJson
+} from './api.js'
 
-requireAuth()
-initNav('My notes')
+let allNotes = []
+let activeFilter = 'all'
 
-document.querySelector('.upload-cta').addEventListener('click', () => {
+if (requireAuth()) {
+    initNav('My notes')
+    loadNotes()
+}
+
+document.querySelector('.upload-cta')?.addEventListener('click', () => {
     window.location.href = '/04-upload.html'
 })
+
 document.querySelector('.card.ghost')?.addEventListener('click', () => {
     window.location.href = '/04-upload.html'
 })
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let allNotes    = []
-let activeFilter = 'all'
-
-// ── Load notes ────────────────────────────────────────────────────────────────
 async function loadNotes() {
     try {
-        // Use search with no filter to get user's own notes via getnotesall
-        const res = await api('/user/notes/getnotesall')
-        if (res.status === 401) { logout(); return }
+        const response = await api('/user/notes/getnotesall')
 
-        // getnotesall returns URLs only, so we search to get full objects
-        const searchRes = await api('/user/notes/search?limit=50')
-        if (!searchRes.ok) throw new Error()
+        if (response.status === 401) {
+            logout()
+            return
+        }
 
-        const data = await searchRes.json()
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Could not load notes')
+        }
+
         allNotes = data.notes || []
         renderNotes()
         updateFilterCounts()
-    } catch (err) {
-        console.error(err)
+    } catch (error) {
+        console.error(error)
         toast('Failed to load notes.', 'error')
+        renderLoadError()
     }
 }
 
-function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const days = Math.floor(diff / 86400000)
-    if (days < 1)  return 'today'
-    if (days === 1) return '1 day ago'
-    if (days < 7)  return `${days} days ago`
-    if (days < 14) return '1 week ago'
-    return `${Math.floor(days/7)} weeks ago`
+function renderLoadError() {
+    const grid = document.querySelector('.grid')
+    grid.querySelectorAll('.card:not(.ghost), .notes-state').forEach(item => {
+        item.remove()
+    })
+
+    const state = document.createElement('div')
+    state.className = 'notes-state'
+    state.style.cssText =
+        'grid-column:1/-1;padding:40px;text-align:center;color:var(--rust);font-size:14px;'
+    state.textContent = 'Could not load your notes.'
+
+    grid.prepend(state)
 }
 
 function renderNotes() {
     const grid = document.querySelector('.grid')
-    const filtered = activeFilter === 'all'
-        ? allNotes
-        : allNotes.filter(n => n.visibility === activeFilter)
+    const ghostCard = grid.querySelector('.card.ghost')
 
-    // Keep ghost card, rebuild rest
-    const ghost = grid.querySelector('.card.ghost')
-    grid.innerHTML = ''
+    grid.querySelectorAll('.card:not(.ghost), .notes-state').forEach(item => {
+        item.remove()
+    })
 
-    if (!filtered.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--pencil);font-size:14px;">No notes here yet.</div>`
-        if (ghost) grid.appendChild(ghost)
+    const filteredNotes =
+        activeFilter === 'all'
+            ? allNotes
+            : allNotes.filter(note => note.visibility === activeFilter)
+
+    if (!filteredNotes.length) {
+        const state = document.createElement('div')
+        state.className = 'notes-state'
+        state.style.cssText =
+            'grid-column:1/-1;padding:40px;text-align:center;color:var(--pencil);font-size:14px;'
+        state.textContent =
+            activeFilter === 'all'
+                ? 'No notes yet. Upload your first one!'
+                : `No ${activeFilter} notes yet.`
+
+        grid.insertBefore(state, ghostCard)
         return
     }
 
-    filtered.forEach(n => {
+    filteredNotes.forEach(note => {
         const card = document.createElement('div')
         card.className = 'card'
-        card.dataset.id = n._id
-        const rating = n.rating
-            ? `<div class="rating-disp"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>${n.rating.toFixed(1)}</div>`
-            : `<div class="rating-disp empty">No ratings yet</div>`
+        card.dataset.id = note._id
+
+        const rating = Number(note.rating || 0)
+        const ratingHTML = rating
+            ? `
+                <div class="rating-disp">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/>
+                    </svg>
+                    ${rating.toFixed(1)}
+                    <span style="color:var(--pencil);font-weight:400;">
+                        · ${Number(note.ratingCount || 0)}
+                    </span>
+                </div>
+            `
+            : '<div class="rating-disp empty">No ratings yet</div>'
 
         card.innerHTML = `
-            <div class="stamp ${n.visibility}">${n.visibility}</div>
+            <div class="stamp ${escapeHTML(note.visibility)}">
+                ${escapeHTML(note.visibility)}
+            </div>
+
             <div class="card-top">
                 <div class="file-ico"></div>
                 <div>
-                    <p class="card-title">${n.noteUrl.split('/').pop().replace('.pdf','').replace(/-/g,' ')}</p>
-                    <div class="card-meta">uploaded ${timeAgo(n.createdAt)}</div>
+                    <p class="card-title">${escapeHTML(noteName(note))}</p>
+                    <div class="card-meta">
+                        ${escapeHTML(formatFileSize(note.fileSize))}
+                        · uploaded ${escapeHTML(timeAgo(note.createdAt))}
+                    </div>
                 </div>
             </div>
+
             <div class="card-bottom">
-                ${rating}
+                ${ratingHTML}
+
                 <div class="actions">
-                    <div class="icon-btn access-btn" data-id="${n._id}" title="Manage access">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0114 0"/></svg>
+                    <div class="icon-btn access-btn"
+                         data-id="${escapeHTML(note._id)}"
+                         title="Manage access">
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <circle cx="12" cy="8" r="3"/>
+                            <path d="M5 21a7 7 0 0114 0"/>
+                        </svg>
                     </div>
-                    <div class="icon-btn danger delete-btn" data-id="${n._id}" title="Delete">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/></svg>
+
+                    <div class="icon-btn danger delete-btn"
+                         data-id="${escapeHTML(note._id)}"
+                         title="Delete">
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7"/>
+                        </svg>
                     </div>
                 </div>
             </div>
         `
 
-        // Click card → view detail (not on buttons)
-        card.addEventListener('click', e => {
-            if (e.target.closest('.icon-btn')) return
-            localStorage.setItem('viewNoteId', n._id)
+        card.addEventListener('click', event => {
+            if (event.target.closest('.icon-btn')) {
+                return
+            }
+
+            localStorage.setItem('viewNoteId', note._id)
             window.location.href = '/06-note-detail.html'
         })
 
-        grid.appendChild(card)
+        card.querySelector('.delete-btn').addEventListener(
+            'click',
+            () => deleteNote(note._id)
+        )
+
+        card.querySelector('.access-btn').addEventListener(
+            'click',
+            () => {
+                localStorage.setItem('manageNoteId', note._id)
+                window.location.href = '/07-profile-access.html'
+            }
+        )
+
+        grid.insertBefore(card, ghostCard)
     })
+}
 
-    if (ghost) grid.appendChild(ghost)
+async function deleteNote(noteId) {
+    if (!confirm('Delete this note?')) {
+        return
+    }
 
-    // Delete buttons
-    grid.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async e => {
-            e.stopPropagation()
-            if (!confirm('Delete this note?')) return
-            try {
-                const res = await api('/user/notes/Deleteone', {
-                    method: 'DELETE',
-                    body: JSON.stringify({ noteID: btn.dataset.id })
-                })
-                if (res.ok) {
-                    allNotes = allNotes.filter(n => n._id !== btn.dataset.id)
-                    renderNotes()
-                    updateFilterCounts()
-                    toast('Note deleted.', 'success')
-                } else {
-                    toast('Could not delete note.', 'error')
-                }
-            } catch { toast('Network error.', 'error') }
+    try {
+        const response = await api('/user/notes/deleteone', {
+            method: 'DELETE',
+            body: JSON.stringify({ noteId })
         })
-    })
 
-    // Access buttons → go to profile access tab
-    grid.querySelectorAll('.access-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-            e.stopPropagation()
-            localStorage.setItem('manageNoteId', btn.dataset.id)
-            window.location.href = '/07-profile-access.html'
-        })
-    })
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            toast(data.message || 'Could not delete note.', 'error')
+            return
+        }
+
+        allNotes = allNotes.filter(note => note._id !== noteId)
+        renderNotes()
+        updateFilterCounts()
+        toast('Note deleted.', 'success')
+    } catch (error) {
+        console.error(error)
+        toast('Network error.', 'error')
+    }
 }
 
 function updateFilterCounts() {
-    const total   = allNotes.length
-    const pub     = allNotes.filter(n => n.visibility === 'public').length
-    const shared  = allNotes.filter(n => n.visibility === 'shared').length
-    const priv    = allNotes.filter(n => n.visibility === 'private').length
+    const total = allNotes.length
+    const publicCount = allNotes.filter(
+        note => note.visibility === 'public'
+    ).length
+    const sharedCount = allNotes.filter(
+        note => note.visibility === 'shared'
+    ).length
+    const privateCount = allNotes.filter(
+        note => note.visibility === 'private'
+    ).length
 
-    document.querySelector('.page-head p').textContent = `${total} active files on your shelf`
+    document.querySelector('.page-head p').textContent =
+        `${total} active file${total === 1 ? '' : 's'} on your shelf`
 
-    const chips = document.querySelectorAll('.filter-bar .chip')
-    const labels = [`All · ${total}`, `Public · ${pub}`, `Shared · ${shared}`, `Private · ${priv}`]
-    chips.forEach((chip, i) => { chip.textContent = labels[i] })
+    const labels = [
+        `All · ${total}`,
+        `Public · ${publicCount}`,
+        `Shared · ${sharedCount}`,
+        `Private · ${privateCount}`
+    ]
+
+    document.querySelectorAll('.filter-bar .chip').forEach((chip, index) => {
+        chip.textContent = labels[index]
+    })
 }
 
-// ── Filter chips ──────────────────────────────────────────────────────────────
 const filterMap = ['all', 'public', 'shared', 'private']
-document.querySelectorAll('.filter-bar .chip').forEach((chip, i) => {
+
+document.querySelectorAll('.filter-bar .chip').forEach((chip, index) => {
     chip.addEventListener('click', () => {
-        document.querySelectorAll('.filter-bar .chip').forEach(c => c.classList.remove('active'))
+        document.querySelectorAll('.filter-bar .chip').forEach(item => {
+            item.classList.remove('active')
+        })
+
         chip.classList.add('active')
-        activeFilter = filterMap[i]
+        activeFilter = filterMap[index]
         renderNotes()
     })
 })
-
-loadNotes()

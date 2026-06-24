@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Marginalia — Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --paper:#FAF7F0; --paper-deep:#F0EAD9; --ink:#1C1B19; --ink-soft:#3a3835;
@@ -111,109 +112,58 @@
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <div class="brand"><span class="mark">M.</span> Marginalia</div>
-  <nav>
-    <a href="#" class="active">Dashboard</a>
-    <a href="#">My notes</a>
-    <a href="#">Browse</a>
-    <a href="#">Profile</a>
-  </nav>
-  <div class="avatar">A</div>
+<div class="brand"><span class="mark">M.</span> Marginalia</div>
+<nav>
+<a class="active" href="#">Dashboard</a>
+<a href="#">My notes</a>
+<a href="#">Browse</a>
+<a href="#">Profile</a>
+</nav>
+<div class="avatar">?</div>
 </div>
-
 <main>
-  <div class="greet-row">
-    <div class="greet">
-      <h1>Good to see you, Aastik.</h1>
-      <p>Here's how your shelf is looking today.</p>
-    </div>
-    <button class="upload-cta">＋ Upload a note</button>
-  </div>
-
-  <div class="stats">
-    <div class="stat-card notes">
-      <span class="label">Notes uploaded</span>
-      <div class="value">12 <span class="unit">active files</span></div>
-      <div class="mini-bars">
-        <i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i>
-      </div>
-      <div class="legend">
-        <span><i style="background:var(--rust)"></i>private · 3</span>
-        <span><i style="background:var(--sienna)"></i>shared · 4</span>
-        <span><i style="background:var(--forest)"></i>public · 5</span>
-      </div>
-    </div>
-
-    <div class="stat-card rating">
-      <span class="label">Average rating</span>
-      <div class="value">4.6 <span class="unit">/ 5.00</span></div>
-      <div class="stars">
-        <svg class="star" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="star" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="star" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="star" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="star empty" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-      </div>
-      <p style="font-size:11.5px;color:var(--pencil);margin:10px 0 0;">averaged across all your uploaded notes</p>
-    </div>
-
-    <div class="stat-card visibility">
-      <span class="label">Most viewed note</span>
-      <div class="value" style="font-size:22px;">Operating Systems —<br>Scheduling Algorithms</div>
-      <div style="display:flex;gap:8px;margin-top:14px;align-items:center;">
-        <span class="status-pill public">public</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--pencil);">★ 4.9 · 31 ratings</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-head">
-    <h2>Recently uploaded</h2>
-    <a href="#">View all notes →</a>
-  </div>
-
-  <div class="recent-list">
-    <div class="recent-item">
-      <div class="file-ico"></div>
-      <div class="item-info">
-        <div class="name">Operating Systems — Scheduling Algorithms.pdf</div>
-        <div class="meta">uploaded 2 days ago · 1.4 MB</div>
-      </div>
-      <span class="status-pill public">public</span>
-      <div class="item-rating">★ 4.9</div>
-    </div>
-    <div class="recent-item">
-      <div class="file-ico"></div>
-      <div class="item-info">
-        <div class="name">DBMS Normalization — full unit.pdf</div>
-        <div class="meta">uploaded 5 days ago · 2.1 MB</div>
-      </div>
-      <span class="status-pill shared">shared</span>
-      <div class="item-rating">★ 4.4</div>
-    </div>
-    <div class="recent-item">
-      <div class="file-ico"></div>
-      <div class="item-info">
-        <div class="name">Discrete Math — Graph Theory crash sheet.pdf</div>
-        <div class="meta">uploaded 1 week ago · 860 KB</div>
-      </div>
-      <span class="status-pill private">private</span>
-      <div class="item-rating">★ —</div>
-    </div>
-    <div class="recent-item">
-      <div class="file-ico"></div>
-      <div class="item-info">
-        <div class="name">Computer Networks — OSI vs TCP/IP.pdf</div>
-        <div class="meta">uploaded 2 weeks ago · 990 KB</div>
-      </div>
-      <span class="status-pill public">public</span>
-      <div class="item-rating">★ 4.7</div>
-    </div>
-  </div>
+<div class="greet-row">
+<div class="greet">
+<h1>Loading your dashboard…</h1>
+<p>Here's how your shelf is looking today.</p>
+</div>
+<button class="upload-cta">＋ Upload a note</button>
+</div>
+<div class="stats">
+<div class="stat-card notes">
+<span class="label">Notes uploaded</span>
+<div class="value">— <span class="unit">active files</span></div>
+<div class="mini-bars">
+<i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i>
+</div>
+<div class="legend">
+<span><i style="background:var(--rust)"></i> private · —</span>
+<span><i style="background:var(--sienna)"></i> shared · —</span>
+<span><i style="background:var(--forest)"></i> public · —</span>
+</div>
+</div>
+<div class="stat-card rating">
+<span class="label">Average rating</span>
+<div class="value">— <span class="unit">/ 5.00</span></div>
+<div class="stars"></div>
+<p style="font-size:11.5px;color:var(--pencil);margin:10px 0 0;">averaged across all your uploaded notes</p>
+</div>
+<div class="stat-card visibility">
+<span class="label">Top rated note</span>
+<div class="value" id="top-note-title" style="font-size:22px;">No rated notes yet</div>
+<div style="display:flex;gap:8px;margin-top:14px;align-items:center;">
+<span class="status-pill" id="top-note-visibility">—</span>
+<span id="top-note-meta" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--pencil);">Ratings will appear here</span>
+</div>
+</div>
+</div>
+<div class="section-head">
+<h2>Recently uploaded</h2>
+<a href="/03-my-notes.html">View all notes →</a>
+</div>
+<div class="recent-list"><div style="padding:28px 22px;color:var(--pencil);font-size:14px;text-align:center;">Loading your notes…</div></div>
 </main>
-<script type="module" src="/js/02-dashboard.js"></script>
-
+<script src="/js/02-dashboard.js" type="module"></script>
 </body>
 </html>

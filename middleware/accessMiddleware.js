@@ -1,51 +1,44 @@
 import notes from '../model/notes.js'
 
+export async function canAccessNote(req, res, next) {
+    try {
+        const noteId =
+            req.params.id ||
+            req.body?.noteId ||
+            req.query?.noteId
 
-export async function canAccessNote(req,res,next){
-
-    try{
-
-        const note = await notes.findById(req.body.noteId)
-
-        if(!note){
-            return res.status(404).send("Note not found")
+        if (!noteId) {
+            return res.status(400).json({
+                message: 'Note ID is required'
+            })
         }
 
-        if(note.visibility === "private" && note.user  === req.user){
+        const note = await notes.findById(noteId)
 
-            req.note = note
-
-            return next()
+        if (!note || note.status !== 'active') {
+            return res.status(404).json({
+                message: 'Note not found'
+            })
         }
 
-        if(note.visibility === "public"){
+        const isOwner = note.user.toString() === req.user.toString()
+        const isPublic = note.visibility === 'public'
+        const isSharedWithUser =
+            note.visibility === 'shared' &&
+            note.access.some(id => id.toString() === req.user.toString())
 
-            req.note = note
-
-            return next()
+        if (!isOwner && !isPublic && !isSharedWithUser) {
+            return res.status(403).json({
+                message: 'Access denied'
+            })
         }
 
-        if(
-            note.visibility === "shared" &&
-            note.access.some(
-                id => id.toString() === req.user
-            )
-        ){
-
-            req.note = note
-
-            return next()
-        }
-
-
-        return res.status(403).send("Access denied")
-
-    }catch(err){
-
+        req.note = note
+        next()
+    } catch (err) {
         console.error(err)
-
-        res.status(500).send("Server Error")
-
+        res.status(500).json({
+            message: 'Server Error'
+        })
     }
-
 }

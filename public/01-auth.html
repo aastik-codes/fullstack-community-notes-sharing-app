@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Marginalia — Sign in</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --paper:#FAF7F0;
@@ -318,118 +319,93 @@
 </style>
 </head>
 <body>
-
-<input type="radio" name="authmode" id="mode-login" checked>
-<input type="radio" name="authmode" id="mode-signup">
-<input type="radio" name="authmode" id="mode-forgot">
-
+<input checked="" id="mode-login" name="authmode" type="radio"/>
+<input id="mode-signup" name="authmode" type="radio"/>
+<input id="mode-forgot" name="authmode" type="radio"/>
 <div class="wrap">
-
-  <div class="side">
-    <div class="brand"><span class="mark">M.</span> Marginalia</div>
-
-    <div class="side-copy">
-      <span class="eyebrow">For students, by students</span>
-      <h1>Notes worth<br>passing along.</h1>
-      <p>Upload your lecture notes, set who can see them, and find what your batchmates have already written down — rated, sorted, and ready to read.</p>
-
-      <div class="stack-cards">
-        <div class="mini-card c1"><span>Data Structures — Unit 3</span>★ 4.8 · public</div>
-        <div class="mini-card c2"><span>Thermodynamics, Ch.7</span>★ 4.2 · shared</div>
-        <div class="mini-card c3"><span>OS Scheduling notes</span>★ 4.9 · public</div>
-      </div>
-    </div>
-
-    <div class="foot-note">// every note has a margin worth reading</div>
-  </div>
-
-  <div class="panel">
-    <div class="card">
-      <div class="tabs">
-        <label class="tab" id="t-login" for="mode-login">Sign in</label>
-        <label class="tab" id="t-signup" for="mode-signup">Create account</label>
-      </div>
-
-      <div class="forms">
-
-        <div class="panel-form login">
-          <h2 class="form-title">Welcome back</h2>
-          <p class="form-sub">New here? Use the <label for="mode-signup" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">create account</label> tab above.</p>
-
-          <div class="field">
-            <label>Email</label>
-            <input type="email" placeholder="you@srmap.edu.in">
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" placeholder="••••••••">
-          </div>
-
-          <div class="row-between">
-            <span class="remember"><input type="checkbox" checked> Remember me</span>
-            <label for="mode-forgot" class="link-quiet" style="cursor:pointer;">Forgot password?</label>
-          </div>
-
-          <button class="btn-primary">Sign in</button>
-
-          <div class="divider">or</div>
-          <p style="text-align:center;font-size:12.5px;color:var(--pencil);">Token-based session via JWT — no account linking yet.</p>
-        </div>
-
-        <div class="panel-form signup">
-          <h2 class="form-title">Create your account</h2>
-          <p class="form-sub">Already registered? Use the <label for="mode-login" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">sign in</label> tab above.</p>
-
-          <div class="field">
-            <label>Username</label>
-            <input type="text" placeholder="aastik_k">
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" placeholder="you@srmap.edu.in">
-            <div class="hint">must contain "@"</div>
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" placeholder="at least 6 characters">
-            <div class="hint">min. 6 characters</div>
-          </div>
-
-          <button class="btn-primary" style="margin-top:6px;">Create account</button>
-        </div>
-
-        <div class="panel-form forgot">
-          <h2 class="form-title">Reset your password</h2>
-          <p class="form-sub">We'll email a reset token to your inbox. Back to <label for="mode-login" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">sign in</label>.</p>
-
-          <div class="field">
-            <label>Email</label>
-            <input type="email" placeholder="you@srmap.edu.in">
-          </div>
-
-          <button class="btn-primary">Send reset token</button>
-
-          <div class="divider">then</div>
-
-          <div class="field">
-            <label>Reset token</label>
-            <input type="text" placeholder="paste token from email" style="font-family:'JetBrains Mono',monospace;font-size:13px;">
-          </div>
-          <div class="field">
-            <label>New password</label>
-            <input type="password" placeholder="••••••••">
-          </div>
-          <button class="btn-primary" style="background:var(--forest);">Update password</button>
-        </div>
-
-      </div>
-
-      <div class="stamp-row"><span class="dot"></span> server status: healthy</div>
-    </div>
-  </div>
-
+<div class="side">
+<div class="brand"><span class="mark">M.</span> Marginalia</div>
+<div class="side-copy">
+<span class="eyebrow">For students, by students</span>
+<h1>Notes worth<br/>passing along.</h1>
+<p>Upload your lecture notes, set who can see them, and find what your batchmates have already written down — rated, sorted, and ready to read.</p>
+<div class="stack-cards">
+<div class="mini-card c1"><span>Upload PDFs</span>Keep your lecture notes organized</div>
+<div class="mini-card c2"><span>Choose visibility</span>Public, private, or shared</div>
+<div class="mini-card c3"><span>Discover notes</span>Search by student name or email</div>
 </div>
-
+</div>
+<div class="foot-note">// every note has a margin worth reading</div>
+</div>
+<div class="panel">
+<div class="card">
+<div class="tabs">
+<label class="tab" for="mode-login" id="t-login">Sign in</label>
+<label class="tab" for="mode-signup" id="t-signup">Create account</label>
+</div>
+<div class="forms">
+<div class="panel-form login">
+<h2 class="form-title">Welcome back</h2>
+<p class="form-sub">New here? Use the <label for="mode-signup" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">create account</label> tab above.</p>
+<div class="field">
+<label>Email</label>
+<input placeholder="you@srmap.edu.in" type="email"/>
+</div>
+<div class="field">
+<label>Password</label>
+<input placeholder="••••••••" type="password"/>
+</div>
+<div class="row-between">
+<span class="remember"><input checked="" type="checkbox"/> Remember me</span>
+<label class="link-quiet" for="mode-forgot" style="cursor:pointer;">Forgot password?</label>
+</div>
+<button class="btn-primary">Sign in</button>
+<div class="divider">or</div>
+<p style="text-align:center;font-size:12.5px;color:var(--pencil);">Token-based session via JWT — no account linking yet.</p>
+</div>
+<div class="panel-form signup">
+<h2 class="form-title">Create your account</h2>
+<p class="form-sub">Already registered? Use the <label for="mode-login" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">sign in</label> tab above.</p>
+<div class="field">
+<label>Username</label>
+<input placeholder="your_username" type="text"/>
+</div>
+<div class="field">
+<label>Email</label>
+<input placeholder="you@srmap.edu.in" type="email"/>
+<div class="hint">must contain "@"</div>
+</div>
+<div class="field">
+<label>Password</label>
+<input placeholder="at least 6 characters" type="password"/>
+<div class="hint">min. 6 characters</div>
+</div>
+<button class="btn-primary" style="margin-top:6px;">Create account</button>
+</div>
+<div class="panel-form forgot">
+<h2 class="form-title">Reset your password</h2>
+<p class="form-sub">We'll email a reset token to your inbox. Back to <label for="mode-login" style="cursor:pointer;color:var(--sienna);border-bottom:1px solid currentColor;">sign in</label>.</p>
+<div class="field">
+<label>Email</label>
+<input placeholder="you@srmap.edu.in" type="email"/>
+</div>
+<button class="btn-primary">Send reset token</button>
+<div class="divider">then</div>
+<div class="field">
+<label>Reset token</label>
+<input placeholder="paste token from email" style="font-family:'JetBrains Mono',monospace;font-size:13px;" type="text"/>
+</div>
+<div class="field">
+<label>New password</label>
+<input placeholder="••••••••" type="password"/>
+</div>
+<button class="btn-primary" style="background:var(--forest);">Update password</button>
+</div>
+</div>
+<div class="stamp-row" id="server-status"><span class="dot"></span> server status: checking…</div>
+</div>
+</div>
+</div>
 <style>
   /* active tab highlight via :has, with graceful fallback */
   body:has(#mode-login:checked) #t-login,
@@ -439,7 +415,6 @@
     box-shadow:0 2px 6px rgba(0,0,0,.18);
   }
 </style>
-<script type="module" src="/js/01-auth.js"></script>
-
+<script src="/js/01-auth.js" type="module"></script>
 </body>
 </html>

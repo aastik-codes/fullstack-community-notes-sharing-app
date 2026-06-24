@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marginalia — Operating Systems, Scheduling</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marginalia — Note</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --paper:#FAF7F0; --paper-deep:#F0EAD9; --ink:#1C1B19; --ink-soft:#3a3835;
@@ -147,158 +148,89 @@
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <div class="brand"><span class="mark">M.</span> Marginalia</div>
-  <nav>
-    <a href="#">Dashboard</a>
-    <a href="#">My notes</a>
-    <a href="#" class="active">Browse</a>
-    <a href="#">Profile</a>
-  </nav>
-  <div class="avatar">A</div>
+<div class="brand"><span class="mark">M.</span> Marginalia</div>
+<nav>
+<a href="#">Dashboard</a>
+<a href="#">My notes</a>
+<a class="active" href="#">Browse</a>
+<a href="#">Profile</a>
+</nav>
+<div class="avatar">?</div>
 </div>
-
-<div class="crumb"><a href="#">Browse</a> / Operating Systems — Scheduling Algorithms</div>
-
+<div class="crumb"><a href="/05-browse.html">Browse</a> / Loading note…</div>
 <main>
-  <div>
-    <div class="viewer-head">
-      <div>
-        <h1>Operating Systems —<br>Scheduling Algorithms</h1>
-        <div class="by"><span class="mini-avatar">A</span> Aastik K. · uploaded 2 days ago · 1.4 MB</div>
-      </div>
-      <span class="status-pill public">public</span>
-    </div>
-
-    <div class="pdf-frame">
-      <div class="pdf-toolbar">
-        <div class="left-tools">
-          <div class="pg-nav">
-            <button>‹</button>
-            <span>3 / 14</span>
-            <button>›</button>
-          </div>
-        </div>
-        <div class="right-tools">
-          <div class="tool-btn" title="Zoom out">−</div>
-          <div class="tool-btn" title="Zoom in">+</div>
-          <div class="tool-btn" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m11-5v3a2 2 0 01-2 2h-3"/></svg></div>
-        </div>
-      </div>
-
-      <div class="pdf-page">
-        <div class="doc-title">3. Round Robin Scheduling</div>
-        <div class="doc-sub">OS — UNIT 4 · SCHEDULING ALGORITHMS</div>
-
-        <div class="fake-line w95"></div>
-        <div class="fake-line w100"></div>
-        <div class="fake-line w90"></div>
-        <div class="fake-line w60"></div>
-
-        <div class="fake-diagram">
-          <div class="fake-box">P1</div>
-          <span class="fake-arrow">→</span>
-          <div class="fake-box">P2</div>
-          <span class="fake-arrow">→</span>
-          <div class="fake-box">P3</div>
-          <span class="fake-arrow">→</span>
-          <div class="fake-box">P1</div>
-        </div>
-
-        <div class="fake-heading"></div>
-        <div class="fake-line w100"></div>
-        <div class="fake-line w95"></div>
-        <div class="fake-line w75"></div>
-        <div class="fake-line w40"></div>
-      </div>
-
-      <div class="pdf-toolbar bottom">
-        <div class="page-dots">
-          <i></i><i></i><i class="active"></i><i></i><i></i><i></i><i></i>
-        </div>
-      </div>
-    </div>
-
-    <div class="comments-section">
-      <div class="comments-head">
-        <h2>Comments</h2>
-        <span>14 comments</span>
-      </div>
-
-      <div class="comment-input">
-        <textarea placeholder="Leave a thought on this note…"></textarea>
-        <button>Post</button>
-      </div>
-
-      <div class="comment-item">
-        <div class="comment-avatar">R</div>
-        <div class="comment-body">
-          <div class="comment-head"><span class="nm">Riya Sharma</span><span class="tm">1 day ago</span></div>
-          <div class="comment-text">The Round Robin diagram on page 3 finally made the time-quantum part click for me. Thanks for uploading this!</div>
-          <div class="comment-actions"><span>Reply</span></div>
-        </div>
-      </div>
-
-      <div class="comment-item">
-        <div class="comment-avatar">P</div>
-        <div class="comment-body">
-          <div class="comment-head"><span class="nm">Pranav M.</span><span class="tm">2 days ago</span></div>
-          <div class="comment-text">Could you add a comparison table between SJF and Round Robin in the next version? Otherwise super clean notes.</div>
-          <div class="comment-actions"><span>Reply</span></div>
-        </div>
-      </div>
-
-      <div class="comment-item">
-        <div class="comment-avatar">A</div>
-        <div class="comment-body">
-          <div class="comment-head"><span class="nm">Aastik K.</span><span class="tm">2 days ago</span></div>
-          <div class="comment-text">Good call — I'll add that comparison table in the next revision.</div>
-          <div class="comment-actions"><span>Delete</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <aside>
-    <div class="side-card">
-      <h3>Rate this note</h3>
-      <div class="rate-stars">
-        <svg class="filled" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="filled" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="filled" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg class="filled" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-      </div>
-      <p class="rate-sub">You rated this 4 stars · tap to update</p>
-    </div>
-
-    <div class="side-card">
-      <h3>Average rating</h3>
-      <div class="avg-row"><span class="num">4.9</span><span class="of5">out of 5 · 31 ratings</span></div>
-      <div class="rating-bars">
-        <div class="rbar">5<div class="track"><div class="fill" style="width:82%;"></div></div>82%</div>
-        <div class="rbar">4<div class="track"><div class="fill" style="width:14%;"></div></div>14%</div>
-        <div class="rbar">3<div class="track"><div class="fill" style="width:3%;"></div></div>3%</div>
-        <div class="rbar">2<div class="track"><div class="fill" style="width:1%;"></div></div>1%</div>
-        <div class="rbar">1<div class="track"><div class="fill" style="width:0%;"></div></div>0%</div>
-      </div>
-    </div>
-
-    <div class="side-card">
-      <h3>About the uploader</h3>
-      <div class="access-row">
-        <div>
-          <div class="nm">Aastik K.</div>
-          <div class="em">aastik@srmap.edu.in</div>
-        </div>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--forest-deep);">★ 4.6</span>
-      </div>
-      <button class="download-btn">Download PDF</button>
-    </div>
-  </aside>
+<div>
+<div class="viewer-head">
+<div>
+<h1>Loading note…</h1>
+<div class="by"><span class="mini-avatar">?</span> Loading uploader…</div>
+</div>
+<span class="status-pill">—</span>
+</div>
+<div class="pdf-frame">
+<div class="pdf-toolbar" style="display:none;">
+<div class="left-tools">
+<div class="pg-nav">
+<button>‹</button>
+<span>3 / 14</span>
+<button>›</button>
+</div>
+</div>
+<div class="right-tools">
+<div class="tool-btn" title="Zoom out">−</div>
+<div class="tool-btn" title="Zoom in">+</div>
+<div class="tool-btn" title="Fullscreen"><svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m11-5v3a2 2 0 01-2 2h-3"></path></svg></div>
+</div>
+</div>
+<div class="pdf-page"><div style="padding:48px;text-align:center;color:var(--pencil);">Loading PDF…</div></div>
+<div class="pdf-toolbar bottom" style="display:none;">
+<div class="page-dots">
+<i></i><i></i><i class="active"></i><i></i><i></i><i></i><i></i>
+</div>
+</div>
+</div>
+<div class="comments-section">
+<div class="comments-head">
+<h2>Comments</h2>
+<span>0 comments</span>
+</div>
+<div class="comment-input">
+<textarea placeholder="Leave a thought on this note…"></textarea>
+<button>Post</button>
+</div>
+</div>
+</div>
+<aside>
+<div class="side-card">
+<h3>Rate this note</h3>
+<div class="rate-stars"></div>
+<p class="rate-sub">Choose a rating</p>
+</div>
+<div class="side-card">
+<h3>Average rating</h3>
+<div class="avg-row"><span class="num">0.0</span><span class="of5">out of 5 · 0 ratings</span></div>
+<div class="rating-bars">
+<div class="rbar">5 <div class="track"><div class="fill" style="width:0%;"></div></div> 0%</div>
+<div class="rbar">4 <div class="track"><div class="fill" style="width:0%;"></div></div> 0%</div>
+<div class="rbar">3 <div class="track"><div class="fill" style="width:0%;"></div></div> 0%</div>
+<div class="rbar">2 <div class="track"><div class="fill" style="width:0%;"></div></div> 0%</div>
+<div class="rbar">1 <div class="track"><div class="fill" style="width:0%;"></div></div> 0%</div>
+</div>
+</div>
+<div class="side-card">
+<h3>About the uploader</h3>
+<div class="access-row">
+<div>
+<div class="nm">Loading…</div>
+<div class="em"></div>
+</div>
+<span id="uploader-rating" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--forest-deep);">★ 0.0</span>
+</div>
+<button class="download-btn">Download PDF</button>
+</div>
+</aside>
 </main>
-<script type="module" src="/js/06-note-detail.html"></script>
-
+<script src="/js/06-note-detail.js" type="module"></script>
 </body>
 </html>

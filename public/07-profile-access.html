@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Marginalia — Profile</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --paper:#FAF7F0; --paper-deep:#F0EAD9; --ink:#1C1B19; --ink-soft:#3a3835;
@@ -110,102 +111,70 @@
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <div class="brand"><span class="mark">M.</span> Marginalia</div>
-  <nav>
-    <a href="#">Dashboard</a>
-    <a href="#">My notes</a>
-    <a href="#">Browse</a>
-    <a href="#" class="active">Profile</a>
-  </nav>
-  <div class="avatar">A</div>
+<div class="brand"><span class="mark">M.</span> Marginalia</div>
+<nav>
+<a href="#">Dashboard</a>
+<a href="#">My notes</a>
+<a href="#">Browse</a>
+<a class="active" href="#">Profile</a>
+</nav>
+<div class="avatar">?</div>
 </div>
-
 <main>
-  <div class="profile-head">
-    <div class="big-avatar">A</div>
-    <div>
-      <h1>Aastik K.</h1>
-      <p>aastik@srmap.edu.in <span class="rating-chip">★ 4.6 uploader rating</span></p>
-    </div>
-  </div>
-
-  <div class="tab-row">
-    <div class="tab-item active">Account details</div>
-    <div class="tab-item">Access control</div>
-  </div>
-
-  <div class="panel-box">
-    <h2>Account details</h2>
-    <div class="form-grid">
-      <div class="field">
-        <label>Username</label>
-        <input type="text" value="aastik_k">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" value="aastik@srmap.edu.in">
-        <div class="hint">must contain "@"</div>
-      </div>
-    </div>
-    <div class="save-row">
-      <button class="btn-primary">Save changes</button>
-    </div>
-  </div>
-
-  <div class="panel-box">
-    <h2>Manage access for a note</h2>
-
-    <div class="note-select">
-      <label>Select note</label>
-      <select>
-        <option>DBMS Normalization — full unit (shared)</option>
-        <option>Operating Systems — Scheduling Algorithms (public)</option>
-        <option>Discrete Math — Graph Theory crash sheet (private)</option>
-      </select>
-    </div>
-
-    <label>Visibility</label>
-    <input type="radio" name="vischange" id="vc-public">
-    <input type="radio" name="vischange" id="vc-private">
-    <input type="radio" name="vischange" id="vc-shared" checked>
-    <div class="vis-toggle">
-      <label class="vt-option" for="vc-public">Public</label>
-      <label class="vt-option" for="vc-private">Private</label>
-      <label class="vt-option" for="vc-shared">Shared</label>
-    </div>
-
-    <div class="access-list-head">
-      <h3>People with access</h3>
-      <span>2 people</span>
-    </div>
-
-    <div class="add-access-row">
-      <input type="text" placeholder="Add by email — e.g. friend@srmap.edu.in">
-      <button>Grant access</button>
-    </div>
-
-    <div class="access-grant">
-      <div class="mini-avatar">R</div>
-      <div class="grant-info">
-        <div class="nm">Riya Sharma</div>
-        <div class="em">riya.s@srmap.edu.in</div>
-      </div>
-      <span class="remove-link">Remove</span>
-    </div>
-
-    <div class="access-grant">
-      <div class="mini-avatar">P</div>
-      <div class="grant-info">
-        <div class="nm">Pranav M.</div>
-        <div class="em">pranav.m@srmap.edu.in</div>
-      </div>
-      <span class="remove-link">Remove</span>
-    </div>
-  </div>
+<div class="profile-head">
+<div class="big-avatar">?</div>
+<div>
+<h1>Loading profile…</h1>
+<p>Loading… <span class="rating-chip">★ 0.0 uploader rating</span></p>
+</div>
+</div>
+<div class="tab-row">
+<div class="tab-item active">Account details</div>
+<div class="tab-item">Access control</div>
+</div>
+<div class="panel-box" id="account-panel">
+<h2>Account details</h2>
+<div class="form-grid">
+<div class="field">
+<label>Username</label>
+<input type="text" value=""/>
+</div>
+<div class="field">
+<label>Email</label>
+<input type="email" value=""/>
+<div class="hint">must contain "@"</div>
+</div>
+</div>
+<div class="save-row">
+<button class="btn-primary">Save changes</button>
+</div>
+</div>
+<div class="panel-box" id="access-panel">
+<h2>Manage access for a note</h2>
+<div class="note-select">
+<label>Select note</label>
+<select><option value="">Loading notes…</option></select>
+</div>
+<label>Visibility</label>
+<input id="vc-public" name="vischange" type="radio"/>
+<input id="vc-private" name="vischange" type="radio"/>
+<input id="vc-shared" name="vischange" type="radio"/>
+<div class="vis-toggle">
+<label class="vt-option" for="vc-public">Public</label>
+<label class="vt-option" for="vc-private">Private</label>
+<label class="vt-option" for="vc-shared">Shared</label>
+</div>
+<div class="access-list-head">
+<h3>People with access</h3>
+<span>0 people</span>
+</div>
+<div class="add-access-row">
+<input placeholder="Add by email — e.g. friend@srmap.edu.in" type="text"/>
+<button>Grant access</button>
+</div>
+<div class="empty-hint" style="padding:22px 0;color:var(--pencil);font-size:13px;text-align:center;">Select a note to manage access.</div></div>
 </main>
-<script type="module" src="/js/07-profile-access.js"></script>
-
+<script src="/js/07-profile-access.js" type="module"></script>
 </body>
 </html>

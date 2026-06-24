@@ -1,42 +1,18 @@
-import express from "express";
-import { authMiddleware } from "../middleware/authMiddleware.js"
-import { canAccessNote } from "../middleware/accessMiddleware.js";
-
+import express from 'express'
+import { authMiddleware } from '../middleware/authMiddleware.js'
+import { canAccessNote } from '../middleware/accessMiddleware.js'
 import {
     AddComment,
     GetComments,
     DeleteComment
-} from "../controllers/commentController.js";
+} from '../controllers/commentController.js'
 
-const Crouter = express.Router();
+const router = express.Router()
 
-Crouter.use(authMiddleware);
+router.use(authMiddleware)
 
+router.post('/user/comments/add', canAccessNote, AddComment)
+router.post('/user/comments/get', canAccessNote, GetComments)
+router.delete('/user/comments/delete', DeleteComment)
 
-Crouter.post(
-    "/user/comments/add",
-    canAccessNote,
-    (req, res) => {
-        AddComment(req, res);
-    }
-);
-
-
-Crouter.post(
-    "/user/comments/get",
-    canAccessNote,
-    (req, res) => {
-        GetComments(req, res);
-    }
-);
-
-
-Crouter.delete(
-    "/user/comments/delete",
-    (req, res) => {
-        DeleteComment(req, res);
-    }
-);
-
-
-export default Crouter;
+export default router

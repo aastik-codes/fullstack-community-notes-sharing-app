@@ -1,192 +1,316 @@
-// ── 01-auth.js ────────────────────────────────────────────────────────────────
-// Handles: Login · Sign up · Forgot password · Update password
-
-// If already logged in, skip to dashboard
 if (localStorage.getItem('token')) {
-    window.location.href = '/02-dashboard.html'
+    window.location.replace('/02-dashboard.html')
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function showError(container, msg) {
-    let el = container.querySelector('.form-error')
-    if (!el) {
-        el = document.createElement('p')
-        el.className = 'form-error'
-        el.style.cssText = 'color:#A33B2E;font-size:13px;margin:0 0 14px;font-weight:500;'
-        container.prepend(el)
+function showMessage(container, message, type = 'error') {
+    let element = container.querySelector('.form-error')
+
+    if (!element) {
+        element = document.createElement('p')
+        element.className = 'form-error'
+        element.style.cssText =
+            'font-size:13px;margin:0 0 14px;font-weight:500;'
+        container.prepend(element)
     }
-    el.textContent = msg
+
+    element.style.color = type === 'success' ? '#3D5A4C' : '#A33B2E'
+    element.textContent = message
 }
 
-function clearError(container) {
-    const el = container.querySelector('.form-error')
-    if (el) el.remove()
+function clearMessage(container) {
+    container.querySelector('.form-error')?.remove()
 }
 
-function setLoading(btn, loading) {
-    btn.disabled = loading
-    btn.style.opacity = loading ? '0.65' : '1'
-    btn.dataset.orig = btn.dataset.orig || btn.textContent
-    btn.textContent = loading ? 'Please wait…' : btn.dataset.orig
+function setLoading(button, loading) {
+    button.disabled = loading
+    button.style.opacity = loading ? '0.65' : '1'
+    button.dataset.originalText =
+        button.dataset.originalText || button.textContent
+    button.textContent = loading
+        ? 'Please wait…'
+        : button.dataset.originalText
 }
 
-// ── Tab active highlight ──────────────────────────────────────────────────────
-const modeLogin  = document.getElementById('mode-login')
+async function readBody(response) {
+    const text = await response.text()
+
+    if (!text) {
+        return {}
+    }
+
+    try {
+        return JSON.parse(text)
+    } catch {
+        return { message: text }
+    }
+}
+
+function saveSession(data) {
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('username', data.user.username)
+    localStorage.setItem('userId', data.user.id)
+}
+
+const modeLogin = document.getElementById('mode-login')
 const modeSignup = document.getElementById('mode-signup')
-const tLogin     = document.getElementById('t-login')
-const tSignup    = document.getElementById('t-signup')
+const modeForgot = document.getElementById('mode-forgot')
+const tabLogin = document.getElementById('t-login')
+const tabSignup = document.getElementById('t-signup')
 
 function refreshTabs() {
-    tLogin.classList.toggle('active', modeLogin.checked)
-    tSignup.classList.toggle('active', modeSignup.checked)
+    tabLogin.classList.toggle('active', modeLogin.checked)
+    tabSignup.classList.toggle('active', modeSignup.checked)
 }
+
 modeLogin.addEventListener('change', refreshTabs)
 modeSignup.addEventListener('change', refreshTabs)
+modeForgot.addEventListener('change', refreshTabs)
 refreshTabs()
 
-// ── LOGIN ─────────────────────────────────────────────────────────────────────
+// LOGIN
 const loginPanel = document.querySelector('.panel-form.login')
-const loginBtn   = loginPanel.querySelector('.btn-primary')
+const loginButton = loginPanel.querySelector('.btn-primary')
 
-loginBtn.addEventListener('click', async () => {
-    clearError(loginPanel)
-    const email    = loginPanel.querySelectorAll('input')[0].value.trim()
-    const password = loginPanel.querySelectorAll('input')[1].value
+loginButton.addEventListener('click', async () => {
+    clearMessage(loginPanel)
 
-    if (!email || !password) return showError(loginPanel, 'Email and password are required.')
+    const inputs = loginPanel.querySelectorAll('input')
+    const email = inputs[0].value.trim()
+    const password = inputs[1].value
 
-    setLoading(loginBtn, true)
+    if (!email || !password) {
+        showMessage(loginPanel, 'Email and password are required.')
+        return
+    }
+
+    setLoading(loginButton, true)
+
     try {
-        const res  = await fetch('/login', {
+        const response = await fetch('/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ email, password })
         })
-        const body = await res.text()
 
-        if (!res.ok) {
-            showError(loginPanel, body || 'Login failed.')
-        } else if (body.startsWith('Password') || body.startsWith('User not')) {
-            showError(loginPanel, body)
-        } else {
-            // body is the JWT token
-            localStorage.setItem('token', body)
-            // fetch profile to cache username
-            const pRes = await fetch('/user/profile', {
-                headers: { Authorization: `Bearer ${body}` }
-            })
-            if (pRes.ok) {
-                const profile = await pRes.json()
-                localStorage.setItem('username', profile[0])
-            }
-            window.location.href = '/02-dashboard.html'
+        const data = await readBody(response)
+
+        if (!response.ok) {
+            showMessage(loginPanel, data.message || 'Login failed.')
+            return
         }
-    } catch (e) {
-        showError(loginPanel, 'Network error. Try again.')
+
+        saveSession(data)
+        window.location.replace('/02-dashboard.html')
+    } catch (error) {
+        console.error(error)
+        showMessage(loginPanel, 'Network error. Try again.')
     } finally {
-        setLoading(loginBtn, false)
+        setLoading(loginButton, false)
     }
 })
 
-// ── SIGN UP ───────────────────────────────────────────────────────────────────
+// SIGN UP
 const signupPanel = document.querySelector('.panel-form.signup')
-const signupBtn   = signupPanel.querySelector('.btn-primary')
+const signupButton = signupPanel.querySelector('.btn-primary')
 
-signupBtn.addEventListener('click', async () => {
-    clearError(signupPanel)
-    const inputs   = signupPanel.querySelectorAll('input')
+signupButton.addEventListener('click', async () => {
+    clearMessage(signupPanel)
+
+    const inputs = signupPanel.querySelectorAll('input')
     const username = inputs[0].value.trim()
-    const email    = inputs[1].value.trim()
+    const email = inputs[1].value.trim()
     const password = inputs[2].value
 
-    if (!username || !email || !password) return showError(signupPanel, 'All fields are required.')
-    if (!email.includes('@'))             return showError(signupPanel, 'Enter a valid email.')
-    if (password.length < 6)             return showError(signupPanel, 'Password must be at least 6 characters.')
+    if (!username || !email || !password) {
+        showMessage(signupPanel, 'All fields are required.')
+        return
+    }
 
-    setLoading(signupBtn, true)
+    if (!email.includes('@')) {
+        showMessage(signupPanel, 'Enter a valid email.')
+        return
+    }
+
+    if (password.length < 6) {
+        showMessage(
+            signupPanel,
+            'Password must be at least 6 characters.'
+        )
+        return
+    }
+
+    setLoading(signupButton, true)
+
     try {
-        const res  = await fetch('/signup', {
+        const signupResponse = await fetch('/signup', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ username, email, password })
         })
-        const body = await res.text()
-        if (!res.ok) {
-            showError(signupPanel, body?.message || 'Sign up failed.')
-        } else {
-            // Auto-login after signup
-            const loginRes = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            })
-            const tok = await loginRes.text()
-            localStorage.setItem('token', tok)
-            localStorage.setItem('username', username)
-            window.location.href = '/02-dashboard.html'
+
+        const signupData = await readBody(signupResponse)
+
+        if (!signupResponse.ok) {
+            showMessage(
+                signupPanel,
+                signupData.message || 'Sign up failed.'
+            )
+            return
         }
-    } catch (e) {
-        showError(signupPanel, 'Network error. Try again.')
+
+        const loginResponse = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+
+        const loginData = await readBody(loginResponse)
+
+        if (!loginResponse.ok) {
+            showMessage(
+                signupPanel,
+                loginData.message ||
+                    'Account created. Please sign in.'
+            )
+            modeLogin.checked = true
+            refreshTabs()
+            return
+        }
+
+        saveSession(loginData)
+        window.location.replace('/02-dashboard.html')
+    } catch (error) {
+        console.error(error)
+        showMessage(signupPanel, 'Network error. Try again.')
     } finally {
-        setLoading(signupBtn, false)
+        setLoading(signupButton, false)
     }
 })
 
-// ── FORGOT / RESET ────────────────────────────────────────────────────────────
-const forgotPanel  = document.querySelector('.panel-form.forgot')
-const forgotBtns   = forgotPanel.querySelectorAll('.btn-primary')
-const sendBtn      = forgotBtns[0]   // "Send reset token"
-const updateBtn    = forgotBtns[1]   // "Update password"
+// FORGOT PASSWORD
+const forgotPanel = document.querySelector('.panel-form.forgot')
+const forgotButtons = forgotPanel.querySelectorAll('.btn-primary')
+const sendButton = forgotButtons[0]
+const updateButton = forgotButtons[1]
 
-sendBtn.addEventListener('click', async () => {
-    clearError(forgotPanel)
-    const email = forgotPanel.querySelectorAll('input')[0].value.trim()
-    if (!email) return showError(forgotPanel, 'Enter your email address.')
+sendButton.addEventListener('click', async () => {
+    clearMessage(forgotPanel)
 
-    setLoading(sendBtn, true)
+    const email = forgotPanel
+        .querySelectorAll('input')[0]
+        .value.trim()
+
+    if (!email) {
+        showMessage(forgotPanel, 'Enter your email address.')
+        return
+    }
+
+    setLoading(sendButton, true)
+
     try {
-        const res  = await fetch('/resetpass', {
+        const response = await fetch('/resetpass', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ email })
         })
-        const body = await res.text()
-        showError(forgotPanel, body)   // reuse error el as message (green override below)
-        if (res.ok && body === 'Email sent!') {
-            forgotPanel.querySelector('.form-error').style.color = '#3D5A4C'
-        }
-    } catch (e) {
-        showError(forgotPanel, 'Network error.')
+
+        const data = await readBody(response)
+
+        showMessage(
+            forgotPanel,
+            data.message || 'Could not send reset email.',
+            response.ok ? 'success' : 'error'
+        )
+    } catch (error) {
+        console.error(error)
+        showMessage(forgotPanel, 'Network error.')
     } finally {
-        setLoading(sendBtn, false)
+        setLoading(sendButton, false)
     }
 })
 
-updateBtn.addEventListener('click', async () => {
-    clearError(forgotPanel)
-    const inputs  = forgotPanel.querySelectorAll('input')
-    const token   = inputs[1].value.trim()
+updateButton.addEventListener('click', async () => {
+    clearMessage(forgotPanel)
+
+    const inputs = forgotPanel.querySelectorAll('input')
+    const resetToken = inputs[1].value.trim()
     const newpass = inputs[2].value
 
-    if (!token || !newpass) return showError(forgotPanel, 'Paste the token and enter a new password.')
-    if (newpass.length < 6) return showError(forgotPanel, 'Password must be at least 6 characters.')
+    if (!resetToken || !newpass) {
+        showMessage(
+            forgotPanel,
+            'Paste the token and enter a new password.'
+        )
+        return
+    }
 
-    setLoading(updateBtn, true)
+    if (newpass.length < 6) {
+        showMessage(
+            forgotPanel,
+            'Password must be at least 6 characters.'
+        )
+        return
+    }
+
+    setLoading(updateButton, true)
+
     try {
-        const res  = await fetch('/updatepass', {
+        const response = await fetch('/updatepass', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, newpass })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: resetToken,
+                newpass
+            })
         })
-        const body = await res.text()
-        showError(forgotPanel, body)
-        if (body === 'Password updated') {
-            forgotPanel.querySelector('.form-error').style.color = '#3D5A4C'
-            setTimeout(() => { modeLogin.checked = true; refreshTabs() }, 1800)
+
+        const data = await readBody(response)
+
+        showMessage(
+            forgotPanel,
+            data.message || 'Password update failed.',
+            response.ok ? 'success' : 'error'
+        )
+
+        if (response.ok) {
+            setTimeout(() => {
+                modeLogin.checked = true
+                refreshTabs()
+            }, 1200)
         }
-    } catch (e) {
-        showError(forgotPanel, 'Network error.')
+    } catch (error) {
+        console.error(error)
+        showMessage(forgotPanel, 'Network error.')
     } finally {
-        setLoading(updateBtn, false)
+        setLoading(updateButton, false)
     }
 })
+
+// Real server status
+const serverStatus = document.getElementById('server-status')
+
+if (serverStatus) {
+    fetch('/health')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Health check failed')
+            }
+
+            serverStatus.innerHTML =
+                '<span class="dot"></span> server status: healthy'
+        })
+        .catch(() => {
+            serverStatus.textContent = 'server status: unavailable'
+            serverStatus.style.color = '#A33B2E'
+        })
+}

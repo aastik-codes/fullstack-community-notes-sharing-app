@@ -1,235 +1,441 @@
-// ── 06-note-detail.js ─────────────────────────────────────────────────────────
-import { requireAuth, api, initNav, logout, toast, token } from './api.js'
-
-requireAuth()
-initNav('Browse')
+import {
+    requireAuth,
+    api,
+    initNav,
+    logout,
+    toast,
+    escapeHTML,
+    noteName,
+    formatFileSize,
+    timeAgo,
+    readJson
+} from './api.js'
 
 const noteId = localStorage.getItem('viewNoteId')
-if (!noteId) { window.location.href = '/05-browse.html' }
+let myRating = 0
+let currentNote = null
 
-// ── Breadcrumb ────────────────────────────────────────────────────────────────
+if (!requireAuth()) {
+    // requireAuth already redirects.
+} else if (!noteId) {
+    window.location.replace('/05-browse.html')
+} else {
+    initNav('Browse')
+    loadNote()
+}
+
 document.querySelector('.crumb a').href = '/05-browse.html'
 
-// ── Load note ─────────────────────────────────────────────────────────────────
+async function fetchNote() {
+    const response = await api(
+        `/user/notes/getnotesone/${encodeURIComponent(noteId)}`
+    )
+
+    if (response.status === 401) {
+        logout()
+        return null
+    }
+
+    const data = await readJson(response)
+
+    if (response.status === 403) {
+        throw new Error(data.message || 'You do not have access to this note.')
+    }
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to load note.')
+    }
+
+    return data
+}
+
 async function loadNote() {
     try {
-        const res = await api(`/user/notes/getnotesone?noteId=${noteId}`)
-        if (res.status === 401) { logout(); return }
-        if (res.status === 403) { toast('You do not have access to this note.', 'error'); return }
-        if (!res.ok) throw new Error()
+        currentNote = await fetchNote()
 
-        const note = await res.json()
-        renderNote(note)
-        loadComments()
-        loadRating()
+        if (!currentNote) {
+            return
+        }
 
-    } catch (err) {
-        toast('Failed to load note.', 'error')
+        myRating = Number(currentNote.myRating || 0)
+
+        renderNote(currentNote)
+        setupRatingStars()
+        renderRatingSummary(currentNote)
+        await loadComments()
+    } catch (error) {
+        console.error(error)
+        toast(error.message || 'Failed to load note.', 'error')
+
+        document.querySelector('.pdf-page').innerHTML = `
+            <div style="padding:48px;text-align:center;color:var(--rust);">
+                ${escapeHTML(error.message || 'Failed to load note.')}
+            </div>
+        `
     }
 }
 
 function renderNote(note) {
-    const filename = note.noteUrl.split('/').pop().replace('.pdf','').replace(/-/g,' ')
-
-    // Title + uploader
-    document.querySelector('.viewer-head h1').textContent = filename
-    const byEl   = document.querySelector('.viewer-head .by')
+    const title = noteName(note)
     const uploader = note.user?.username || 'Unknown'
-    const email    = note.user?.email    || ''
-    if (byEl) byEl.innerHTML = `<span class="mini-avatar">${uploader[0]?.toUpperCase()}</span> ${uploader} · ${email}`
+    const email = note.user?.email || ''
+    const initial = uploader.charAt(0).toUpperCase() || '?'
 
-    const pill = document.querySelector('.viewer-head .status-pill')
-    if (pill) { pill.textContent = note.visibility; pill.className = `status-pill ${note.visibility}` }
+    document.title = `Marginalia — ${title}`
 
-    // Embed the real PDF
+    document.querySelector('.crumb').innerHTML = `
+        <a href="/05-browse.html">Browse</a>
+        / ${escapeHTML(title)}
+    `
+
+    document.querySelector('.viewer-head h1').textContent = title
+
+    document.querySelector('.viewer-head .by').innerHTML = `
+        <span class="mini-avatar">${escapeHTML(initial)}</span>
+        ${escapeHTML(uploader)}
+        · uploaded ${escapeHTML(timeAgo(note.createdAt))}
+        · ${escapeHTML(formatFileSize(note.fileSize))}
+    `
+
+    const statusPill = document.querySelector('.viewer-head .status-pill')
+    statusPill.textContent = note.visibility
+    statusPill.className = `status-pill ${note.visibility}`
+
     const pdfPage = document.querySelector('.pdf-page')
-    if (pdfPage && note.noteUrl) {
-        const frame = document.createElement('iframe')
-        frame.src    = note.noteUrl
-        frame.style.cssText = 'width:100%;height:620px;border:none;'
-        frame.title  = filename
-        pdfPage.innerHTML = ''
-        pdfPage.appendChild(frame)
+    pdfPage.innerHTML = ''
+
+    const frame = document.createElement('iframe')
+    frame.src = note.noteUrl
+    frame.style.cssText =
+        'width:100%;height:70vh;min-height:620px;border:none;background:white;'
+    frame.title = title
+    pdfPage.appendChild(frame)
+
+    const downloadButton = document.querySelector('.download-btn')
+    downloadButton.onclick = () => {
+        window.open(note.noteUrl, '_blank', 'noopener,noreferrer')
     }
 
-    // Download button
-    const dlBtn = document.querySelector('.download-btn')
-    if (dlBtn) {
-        dlBtn.addEventListener('click', () => { window.open(note.noteUrl, '_blank') })
+    document.querySelector('.side-card .nm').textContent = uploader
+    document.querySelector('.side-card .em').textContent = email
+
+    const uploaderRating = document.getElementById('uploader-rating')
+    if (uploaderRating) {
+        uploaderRating.textContent =
+            `★ ${Number(note.user?.Rating || 0).toFixed(1)}`
     }
-
-    // Uploader info card
-    const nmEl = document.querySelector('.side-card .nm')
-    const emEl = document.querySelector('.side-card .em')
-    if (nmEl) nmEl.textContent = uploader
-    if (emEl) emEl.textContent = email
-
-    // Average rating card
-    if (note.rating !== undefined) {
-        const avgEl = document.querySelector('.avg-row .num')
-        if (avgEl) avgEl.textContent = note.rating.toFixed(1)
-    }
-}
-
-// ── Rating ─────────────────────────────────────────────────────────────────────
-let myRating = 0
-
-async function loadRating() {
-    // No endpoint to get current user's rating for a note, so we try submitting 0 to detect
-    // We just initialise stars as unset and let hover/click set them
-    setupRatingStars()
 }
 
 function setupRatingStars() {
-    const starsEl = document.querySelector('.rate-stars')
-    if (!starsEl) return
+    const starsElement = document.querySelector('.rate-stars')
 
-    const starSvg = () => `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>`
+    if (!starsElement) {
+        return
+    }
 
-    starsEl.innerHTML = [1,2,3,4,5].map(i =>
-        `<span class="star-wrap" data-val="${i}" style="cursor:pointer;color:${i <= myRating ? 'var(--forest)' : 'var(--line)'};font-size:24px;">${starSvg()}</span>`
-    ).join('')
+    const starSVG = `
+        <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/>
+        </svg>
+    `
 
-    const wraps = starsEl.querySelectorAll('.star-wrap')
+    starsElement.innerHTML = [1, 2, 3, 4, 5]
+        .map(
+            value => `
+                <span class="star-wrap"
+                      data-value="${value}"
+                      style="cursor:pointer;">
+                    ${starSVG.replace(
+                        '<svg ',
+                        `<svg style="color:${value <= myRating
+                            ? 'var(--forest)'
+                            : 'var(--line)'};" `
+                    )}
+                </span>
+            `
+        )
+        .join('')
 
-    wraps.forEach(w => {
-        w.addEventListener('mouseenter', () => highlight(Number(w.dataset.val)))
-        w.addEventListener('mouseleave', () => highlight(myRating))
-        w.addEventListener('click',      () => submitRating(Number(w.dataset.val)))
-    })
-}
+    starsElement.querySelectorAll('.star-wrap').forEach(star => {
+        const value = Number(star.dataset.value)
 
-function highlight(val) {
-    document.querySelectorAll('.star-wrap').forEach(w => {
-        w.style.color = Number(w.dataset.val) <= val ? 'var(--forest)' : 'var(--line)'
-    })
-}
-
-async function submitRating(val) {
-    try {
-        const res = await api('/user/notes/rate', {
-            method: 'POST',
-            body: JSON.stringify({ noteId, rating: val })
+        star.addEventListener('mouseenter', () => {
+            highlightStars(value)
         })
-        if (res.status === 401) { logout(); return }
-        const data = await res.json()
-        myRating = val
-        highlight(val)
 
-        const rateSub = document.querySelector('.rate-sub')
-        if (rateSub) rateSub.textContent = `You rated this ${val} star${val > 1 ? 's' : ''} · tap to update`
+        star.addEventListener('mouseleave', () => {
+            highlightStars(myRating)
+        })
 
-        // Update average
-        const avgEl = document.querySelector('.avg-row .num')
-        if (avgEl && data.noteAverageRating !== undefined) {
-            avgEl.textContent = Number(data.noteAverageRating).toFixed(1)
+        star.addEventListener('click', () => {
+            submitRating(value)
+        })
+    })
+
+    updateMyRatingText()
+}
+
+function highlightStars(value) {
+    document.querySelectorAll('.star-wrap').forEach(star => {
+        const svg = star.querySelector('svg')
+        svg.style.color =
+            Number(star.dataset.value) <= value
+                ? 'var(--forest)'
+                : 'var(--line)'
+    })
+}
+
+function updateMyRatingText() {
+    const subtitle = document.querySelector('.rate-sub')
+
+    if (!subtitle) {
+        return
+    }
+
+    subtitle.textContent = myRating
+        ? `You rated this ${myRating} star${myRating === 1 ? '' : 's'} · tap to update`
+        : 'Choose a rating'
+}
+
+async function submitRating(value) {
+    try {
+        const response = await api('/user/notes/rate', {
+            method: 'POST',
+            body: JSON.stringify({
+                noteId,
+                rating: value
+            })
+        })
+
+        if (response.status === 401) {
+            logout()
+            return
         }
+
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            toast(data.message || 'Could not submit rating.', 'error')
+            return
+        }
+
+        myRating = value
+        highlightStars(value)
+        updateMyRatingText()
+
+        document.querySelector('.avg-row .num').textContent =
+            Number(data.noteAverageRating || 0).toFixed(1)
+
+        document.querySelector('.avg-row .of5').textContent =
+            `out of 5 · ${Number(data.ratingCount || 0)} ` +
+            `rating${Number(data.ratingCount || 0) === 1 ? '' : 's'}`
+
         toast(data.message || 'Rating saved.', 'success')
-    } catch (err) {
+
+        const freshNote = await fetchNote()
+
+        if (freshNote) {
+            currentNote = freshNote
+            renderRatingSummary(freshNote)
+        }
+    } catch (error) {
+        console.error(error)
         toast('Could not submit rating.', 'error')
     }
 }
 
-// ── Comments ──────────────────────────────────────────────────────────────────
-async function loadComments() {
-    try {
-        const res = await api('/user/comments/get', {
-            method: 'POST',
-            body: JSON.stringify({ noteId })
-        })
-        if (!res.ok) return
-        const data = await res.json()
-        renderComments(data.comments || [])
+function renderRatingSummary(note) {
+    const average = Number(note.rating || 0)
+    const count = Number(note.ratingCount || 0)
 
-        const headSpan = document.querySelector('.comments-head span')
-        if (headSpan) headSpan.textContent = `${data.totalComments} comment${data.totalComments !== 1 ? 's' : ''}`
-    } catch (err) { /* non-fatal */ }
-}
+    document.querySelector('.avg-row .num').textContent =
+        average.toFixed(1)
 
-function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const hours = Math.floor(diff / 3600000)
-    const days  = Math.floor(diff / 86400000)
-    if (hours < 1)  return 'just now'
-    if (hours < 24) return `${hours}h ago`
-    if (days === 1) return '1 day ago'
-    if (days < 7)  return `${days} days ago`
-    return `${Math.floor(days/7)} weeks ago`
-}
+    document.querySelector('.avg-row .of5').textContent =
+        `out of 5 · ${count} rating${count === 1 ? '' : 's'}`
 
-function renderComments(comments) {
-    // Remove existing static comment items
-    document.querySelectorAll('.comment-item').forEach(el => el.remove())
+    const breakdown = note.ratingBreakdown || {}
+    const rows = document.querySelectorAll('.rating-bars .rbar')
+    const values = [5, 4, 3, 2, 1]
 
-    const section = document.querySelector('.comments-section')
-    const inputDiv = section.querySelector('.comment-input')
-    const myUsername = localStorage.getItem('username') || ''
+    rows.forEach((row, index) => {
+        const value = values[index]
+        const amount = Number(breakdown[value] || 0)
+        const percentage = count
+            ? Math.round((amount / count) * 100)
+            : 0
 
-    comments.forEach(c => {
-        const author  = c.user?.username || 'Unknown'
-        const isOwner = author === myUsername
-
-        const item = document.createElement('div')
-        item.className = 'comment-item'
-        item.dataset.id = c._id
-        item.innerHTML = `
-            <div class="comment-avatar">${author[0]?.toUpperCase()}</div>
-            <div class="comment-body">
-                <div class="comment-head">
-                    <span class="nm">${author}</span>
-                    <span class="tm">${timeAgo(c.createdAt)}</span>
-                </div>
-                <div class="comment-text">${c.message}</div>
-                <div class="comment-actions">
-                    ${isOwner ? '<span class="delete-comment" style="cursor:pointer;color:var(--rust);">Delete</span>' : ''}
-                </div>
+        row.innerHTML = `
+            ${value}
+            <div class="track">
+                <div class="fill" style="width:${percentage}%;"></div>
             </div>
+            ${percentage}%
         `
-        section.appendChild(item)
-
-        // Delete comment
-        item.querySelector('.delete-comment')?.addEventListener('click', async () => {
-            try {
-                const res = await api('/user/comments/delete', {
-                    method: 'DELETE',
-                    body: JSON.stringify({ commentId: c._id })
-                })
-                if (res.ok) { item.remove(); loadComments() }
-                else toast('Could not delete comment.', 'error')
-            } catch { toast('Network error.', 'error') }
-        })
     })
 }
 
-// ── Post comment ──────────────────────────────────────────────────────────────
+async function loadComments() {
+    try {
+        const response = await api('/user/comments/get', {
+            method: 'POST',
+            body: JSON.stringify({ noteId })
+        })
+
+        if (response.status === 401) {
+            logout()
+            return
+        }
+
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            return
+        }
+
+        renderComments(data.comments || [])
+
+        const count = Number(data.totalComments || 0)
+        document.querySelector('.comments-head span').textContent =
+            `${count} comment${count === 1 ? '' : 's'}`
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function renderComments(comments) {
+    const section = document.querySelector('.comments-section')
+
+    section.querySelectorAll('.comment-item, .comments-empty').forEach(item => {
+        item.remove()
+    })
+
+    if (!comments.length) {
+        const empty = document.createElement('div')
+        empty.className = 'comments-empty'
+        empty.style.cssText =
+            'padding:24px 0;color:var(--pencil);font-size:14px;text-align:center;'
+        empty.textContent = 'No comments yet. Start the conversation.'
+        section.appendChild(empty)
+        return
+    }
+
+    comments.forEach(comment => {
+        const author = comment.user?.username || 'Unknown'
+        const item = document.createElement('div')
+        item.className = 'comment-item'
+        item.dataset.id = comment._id
+
+        const avatar = document.createElement('div')
+        avatar.className = 'comment-avatar'
+        avatar.textContent = author.charAt(0).toUpperCase() || '?'
+
+        const body = document.createElement('div')
+        body.className = 'comment-body'
+
+        const head = document.createElement('div')
+        head.className = 'comment-head'
+
+        const name = document.createElement('span')
+        name.className = 'nm'
+        name.textContent = author
+
+        const date = document.createElement('span')
+        date.className = 'tm'
+        date.textContent = timeAgo(comment.createdAt)
+
+        head.append(name, date)
+
+        const text = document.createElement('div')
+        text.className = 'comment-text'
+        text.textContent = comment.message
+
+        const actions = document.createElement('div')
+        actions.className = 'comment-actions'
+
+        if (comment.isOwner) {
+            const deleteButton = document.createElement('span')
+            deleteButton.textContent = 'Delete'
+            deleteButton.style.cssText =
+                'cursor:pointer;color:var(--rust);'
+
+            deleteButton.addEventListener('click', () => {
+                deleteComment(comment._id)
+            })
+
+            actions.appendChild(deleteButton)
+        }
+
+        body.append(head, text, actions)
+        item.append(avatar, body)
+        section.appendChild(item)
+    })
+}
+
+async function deleteComment(commentId) {
+    try {
+        const response = await api('/user/comments/delete', {
+            method: 'DELETE',
+            body: JSON.stringify({ commentId })
+        })
+
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            toast(data.message || 'Could not delete comment.', 'error')
+            return
+        }
+
+        toast('Comment deleted.', 'success')
+        await loadComments()
+    } catch (error) {
+        console.error(error)
+        toast('Network error.', 'error')
+    }
+}
+
 const commentInput = document.querySelector('.comment-input textarea')
-const commentBtn   = document.querySelector('.comment-input button')
+const commentButton = document.querySelector('.comment-input button')
 
-commentBtn.addEventListener('click', async () => {
+commentButton.addEventListener('click', async () => {
     const message = commentInput.value.trim()
-    if (!message) return
 
-    commentBtn.disabled   = true
-    commentBtn.textContent = 'Posting…'
+    if (!message) {
+        return
+    }
+
+    commentButton.disabled = true
+    commentButton.textContent = 'Posting…'
 
     try {
-        const res = await api('/user/comments/add', {
+        const response = await api('/user/comments/add', {
             method: 'POST',
-            body: JSON.stringify({ noteId, message })
+            body: JSON.stringify({
+                noteId,
+                message
+            })
         })
-        if (res.status === 401) { logout(); return }
-        if (res.ok) {
-            commentInput.value = ''
-            loadComments()
-            toast('Comment posted.', 'success')
-        } else {
-            toast('Could not post comment.', 'error')
+
+        if (response.status === 401) {
+            logout()
+            return
         }
-    } catch { toast('Network error.', 'error') }
-    finally {
-        commentBtn.disabled   = false
-        commentBtn.textContent = 'Post'
+
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            toast(data.message || 'Could not post comment.', 'error')
+            return
+        }
+
+        commentInput.value = ''
+        toast('Comment posted.', 'success')
+        await loadComments()
+    } catch (error) {
+        console.error(error)
+        toast('Network error.', 'error')
+    } finally {
+        commentButton.disabled = false
+        commentButton.textContent = 'Post'
     }
 })
-
-loadNote()

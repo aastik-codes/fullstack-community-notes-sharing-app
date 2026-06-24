@@ -1,116 +1,159 @@
-// ── 05-browse.js ─────────────────────────────────────────────────────────────
-import { requireAuth, api, initNav, logout, toast } from './api.js'
+import {
+    requireAuth,
+    api,
+    initNav,
+    logout,
+    escapeHTML,
+    noteName,
+    timeAgo,
+    readJson
+} from './api.js'
 
-requireAuth()
-initNav('Browse')
+let currentPage = 1
+const LIMIT = 5
+let searchQuery = ''
+let sortValue = 'highest'
+let debounceTimer
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let currentPage  = 1
-const LIMIT      = 5
-let searchQuery  = ''
-let sortValue    = 'highest'
-
-// Sort option mapping
-const sortMap = {
-    'Sort: Highest rated': 'highest',
-    'Sort: Lowest rated':  'lowest',
-    'Sort: Newest first':  'newest',
-    'Sort: Oldest first':  'oldest',
+if (requireAuth()) {
+    initNav('Browse')
+    loadNotes()
 }
 
-// ── Elements ──────────────────────────────────────────────────────────────────
-const searchInput  = document.querySelector('.search-box input')
-const sortSelect   = document.querySelector('.sort-select select')
-const listEl       = document.querySelector('.list')
-const countEl      = document.querySelector('.results-line .count:first-child')
-const pageInfoEl   = document.querySelector('.results-line .count:last-child')
-const paginationEl = document.querySelector('.pagination')
+const searchInput = document.querySelector('.search-box input')
+const sortSelect = document.querySelector('.sort-select select')
+const listElement = document.querySelector('.list')
+const countElement =
+    document.querySelector('.results-line .count:first-child')
+const pageInfoElement =
+    document.querySelector('.results-line .count:last-child')
+const paginationElement = document.querySelector('.pagination')
 
-// ── Search input — debounced ──────────────────────────────────────────────────
-let debounceTimer
+const sortMap = {
+    'Sort: Highest rated': 'highest',
+    'Sort: Lowest rated': 'lowest',
+    'Sort: Newest first': 'newest',
+    'Sort: Oldest first': 'oldest'
+}
+
 searchInput.addEventListener('input', () => {
     clearTimeout(debounceTimer)
+
     debounceTimer = setTimeout(() => {
         searchQuery = searchInput.value.trim()
         currentPage = 1
         loadNotes()
-    }, 400)
+    }, 350)
 })
 
-// ── Sort change ───────────────────────────────────────────────────────────────
 sortSelect.addEventListener('change', () => {
-    sortValue   = sortMap[sortSelect.value] || 'highest'
+    sortValue = sortMap[sortSelect.value] || 'highest'
     currentPage = 1
     loadNotes()
 })
 
-// ── Load notes ────────────────────────────────────────────────────────────────
 async function loadNotes() {
-    listEl.innerHTML = `<div style="padding:30px;text-align:center;color:var(--pencil);font-size:13.5px;">Loading…</div>`
+    listElement.innerHTML = `
+        <div style="padding:30px;text-align:center;color:var(--pencil);font-size:13.5px;">
+            Loading…
+        </div>
+    `
 
     try {
-        let url = `/user/notes/search?page=${currentPage}&limit=${LIMIT}&sort=${sortValue}`
-        if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`
+        let url =
+            `/user/notes/search?page=${currentPage}` +
+            `&limit=${LIMIT}&sort=${sortValue}`
 
-        const res = await api(url)
-        if (res.status === 401) { logout(); return }
-        if (!res.ok) throw new Error()
+        if (searchQuery) {
+            url += `&search=${encodeURIComponent(searchQuery)}`
+        }
 
-        const data = await res.json()
+        const response = await api(url)
+
+        if (response.status === 401) {
+            logout()
+            return
+        }
+
+        const data = await readJson(response)
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Could not load notes')
+        }
+
         renderList(data.notes || [])
         renderMeta(data)
         renderPagination(data.currentPage, data.totalPages)
+    } catch (error) {
+        console.error(error)
 
-    } catch (err) {
-        listEl.innerHTML = `<div style="padding:30px;text-align:center;color:var(--rust);font-size:13.5px;">Failed to load notes. Please try again.</div>`
+        listElement.innerHTML = `
+            <div style="padding:30px;text-align:center;color:var(--rust);font-size:13.5px;">
+                Failed to load notes. Please try again.
+            </div>
+        `
+
+        countElement.textContent = 'Could not load results'
+        pageInfoElement.textContent = ''
+        paginationElement.innerHTML = ''
     }
-}
-
-function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const days = Math.floor(diff / 86400000)
-    if (days < 1)  return 'today'
-    if (days === 1) return '1 day ago'
-    if (days < 7)  return `${days} days ago`
-    if (days < 14) return '1 week ago'
-    if (days < 30) return `${Math.floor(days/7)} weeks ago`
-    return `${Math.floor(days/30)} months ago`
 }
 
 function renderList(notes) {
     if (!notes.length) {
-        listEl.innerHTML = `<div style="padding:40px;text-align:center;color:var(--pencil);font-size:14px;">No public notes found${searchQuery ? ' for "' + searchQuery + '"' : ''}.</div>`
+        const queryText = searchQuery
+            ? ` for "${escapeHTML(searchQuery)}"`
+            : ''
+
+        listElement.innerHTML = `
+            <div style="padding:40px;text-align:center;color:var(--pencil);font-size:14px;">
+                No public notes found${queryText}.
+            </div>
+        `
         return
     }
 
-    listEl.innerHTML = notes.map((n, i) => {
-        const uploader  = n.user?.username || 'Unknown'
-        const email     = n.user?.email    || ''
-        const initial   = uploader[0]?.toUpperCase() || '?'
-        const ratingStr = n.rating ? `${n.rating.toFixed(1)}` : '—'
-        const filename  = n.noteUrl.split('/').pop().replace('.pdf','').replace(/-/g,' ')
+    listElement.innerHTML = notes
+        .map((note, index) => {
+            const uploader = note.user?.username || 'Unknown'
+            const email = note.user?.email || ''
+            const initial = uploader.charAt(0).toUpperCase() || '?'
+            const rating = Number(note.rating || 0)
+            const ratingCount = Number(note.ratingCount || 0)
 
-        return `
-        <div class="row-card" data-id="${n._id}" style="cursor:pointer;animation-delay:${i * 0.05}s">
-            <div class="file-ico"></div>
-            <div class="row-info">
-                <div class="title">${filename}</div>
-                <div class="by">
-                    <span class="mini-avatar">${initial}</span>
-                    ${uploader} · ${email}
+            return `
+                <div class="row-card"
+                     data-id="${escapeHTML(note._id)}"
+                     style="cursor:pointer;animation-delay:${index * 0.05}s">
+
+                    <div class="file-ico"></div>
+
+                    <div class="row-info">
+                        <div class="title">${escapeHTML(noteName(note))}</div>
+                        <div class="by">
+                            <span class="mini-avatar">${escapeHTML(initial)}</span>
+                            ${escapeHTML(uploader)}
+                            ${email ? `· ${escapeHTML(email)}` : ''}
+                        </div>
+                    </div>
+
+                    <div class="row-rating">
+                        <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/>
+                        </svg>
+                        ${rating > 0 ? rating.toFixed(1) : '—'}
+                        <span class="count">(${ratingCount})</span>
+                    </div>
+
+                    <div class="row-date">${escapeHTML(timeAgo(note.createdAt))}</div>
+
+                    <button class="view-btn" type="button">View</button>
                 </div>
-            </div>
-            <div class="row-rating">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1l2.6 6.2 6.7.5-5.1 4.4 1.6 6.6L10 15.3 4.2 18.7l1.6-6.6L.7 7.7l6.7-.5z"/></svg>
-                ${ratingStr}
-            </div>
-            <div class="row-date">${timeAgo(n.createdAt)}</div>
-            <button class="view-btn">View</button>
-        </div>`
-    }).join('')
+            `
+        })
+        .join('')
 
-    // Click row or View button → note detail
-    listEl.querySelectorAll('.row-card').forEach(row => {
+    listElement.querySelectorAll('.row-card').forEach(row => {
         row.addEventListener('click', () => {
             localStorage.setItem('viewNoteId', row.dataset.id)
             window.location.href = '/06-note-detail.html'
@@ -119,33 +162,88 @@ function renderList(notes) {
 }
 
 function renderMeta(data) {
-    const start = (data.currentPage - 1) * LIMIT + 1
-    const end   = Math.min(data.currentPage * LIMIT, data.totalNotes)
-    countEl.innerHTML   = `Showing <b>${start}–${end}</b> of <b>${data.totalNotes}</b> public notes`
-    pageInfoEl.innerHTML = `Page <b>${data.currentPage}</b> of <b>${data.totalPages}</b>`
+    const totalNotes = Number(data.totalNotes || 0)
+    const page = Number(data.currentPage || 1)
+    const totalPages = Number(data.totalPages || 0)
+
+    if (totalNotes === 0) {
+        countElement.textContent = '0 public notes'
+        pageInfoElement.textContent = 'Page 0 of 0'
+        return
+    }
+
+    const start = (page - 1) * LIMIT + 1
+    const end = Math.min(page * LIMIT, totalNotes)
+
+    countElement.innerHTML =
+        `Showing <b>${start}–${end}</b> of ` +
+        `<b>${totalNotes}</b> public notes`
+
+    pageInfoElement.innerHTML =
+        `Page <b>${page}</b> of <b>${totalPages}</b>`
 }
 
-function renderPagination(page, total) {
-    if (total <= 1) { paginationEl.innerHTML = ''; return }
+function renderPagination(page, totalPages) {
+    if (totalPages <= 1) {
+        paginationElement.innerHTML = ''
+        return
+    }
 
-    let html = `<button class="pg-btn prev-btn" ${page === 1 ? 'disabled' : ''}>‹ Prev</button>`
+    let html = `
+        <button class="pg-btn prev-btn"
+                ${page === 1 ? 'disabled' : ''}>
+            ‹ Prev
+        </button>
+    `
 
-    for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= page - 1 && i <= page + 1)) {
-            html += `<button class="pg-btn ${i === page ? 'active' : ''}" data-page="${i}">${i}</button>`
-        } else if (i === page - 2 || i === page + 2) {
-            html += `<button class="pg-btn dots">···</button>`
+    for (let number = 1; number <= totalPages; number += 1) {
+        const isNearby =
+            number === 1 ||
+            number === totalPages ||
+            (number >= page - 1 && number <= page + 1)
+
+        if (isNearby) {
+            html += `
+                <button class="pg-btn ${number === page ? 'active' : ''}"
+                        data-page="${number}">
+                    ${number}
+                </button>
+            `
+        } else if (
+            number === page - 2 ||
+            number === page + 2
+        ) {
+            html += '<button class="pg-btn dots" disabled>···</button>'
         }
     }
 
-    html += `<button class="pg-btn next-btn" ${page === total ? 'disabled' : ''}>Next ›</button>`
-    paginationEl.innerHTML = html
+    html += `
+        <button class="pg-btn next-btn"
+                ${page === totalPages ? 'disabled' : ''}>
+            Next ›
+        </button>
+    `
 
-    paginationEl.querySelector('.prev-btn')?.addEventListener('click', () => { currentPage--; loadNotes() })
-    paginationEl.querySelector('.next-btn')?.addEventListener('click', () => { currentPage++; loadNotes() })
-    paginationEl.querySelectorAll('[data-page]').forEach(btn => {
-        btn.addEventListener('click', () => { currentPage = Number(btn.dataset.page); loadNotes() })
+    paginationElement.innerHTML = html
+
+    paginationElement
+        .querySelector('.prev-btn')
+        ?.addEventListener('click', () => {
+            currentPage -= 1
+            loadNotes()
+        })
+
+    paginationElement
+        .querySelector('.next-btn')
+        ?.addEventListener('click', () => {
+            currentPage += 1
+            loadNotes()
+        })
+
+    paginationElement.querySelectorAll('[data-page]').forEach(button => {
+        button.addEventListener('click', () => {
+            currentPage = Number(button.dataset.page)
+            loadNotes()
+        })
     })
 }
-
-loadNotes()
