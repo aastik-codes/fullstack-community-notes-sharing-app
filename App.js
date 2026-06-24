@@ -26,7 +26,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, 'public')))
 
 // ── API routes ─────────────────────────────────────────────────────────────────
-app.use('/', HealthRoutes)
+app.use('/health', HealthRoutes)
+
 app.use('/', authRoutes)
 app.use('/', Userroutes)
 app.use('/', Nrouter)
