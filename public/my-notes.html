@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --purple: #7c3aed;
+            --background: #f6f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --text: #172033;
+            --muted: #697386;
+            --border: #e2e8f0;
+            --danger: #b91c1c;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 28%),
+                var(--background);
+        }
+
+        button,
+        a {
+            font: inherit;
+        }
+
+        .page-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+            border-right: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(16px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+            margin-bottom: 38px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.23);
+        }
+
+        .nav-links {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
+        .logout-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: transparent;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .main-content {
+            min-width: 0;
+            padding: 34px 40px 50px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .mobile-menu-button {
+            display: none;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        h1 {
+            margin-bottom: 7px;
+            font-size: 32px;
+            letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .upload-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 17px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 12px 25px rgba(79, 70, 229, 0.2);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+            padding: 15px 17px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        }
+
+        .count-text {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .count-text strong {
+            color: var(--text);
+        }
+
+        .refresh-button {
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-soft);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            border-color: #c7d2fe;
+            color: var(--primary);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .note-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .note-preview {
+            min-height: 155px;
+            display: grid;
+            place-items: center;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.1)),
+                #f8fafc;
+        }
+
+        .pdf-icon {
+            width: 68px;
+            height: 82px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: white;
+            color: var(--primary);
+            font-weight: 800;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        .pdf-icon::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 18px solid #dbeafe;
+            border-left: 18px solid transparent;
+        }
+
+        .note-body {
+            padding: 18px;
+        }
+
+        .note-label {
+            margin-bottom: 7px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .note-title {
+            margin-bottom: 15px;
+            overflow: hidden;
+            font-size: 15px;
+            line-height: 1.45;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .open-note {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .open-note:hover {
+            background: #e0e7ff;
+        }
+
+        .copy-button {
+            width: 42px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            color: var(--primary);
+            border-color: #c7d2fe;
+        }
+
+        .state-card {
+            display: none;
+            padding: 42px 24px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            text-align: center;
+        }
+
+        .state-card.visible {
+            display: block;
+        }
+
+        .state-icon {
+            width: 62px;
+            height: 62px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+            border-radius: 18px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 27px;
+        }
+
+        .state-card h2 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .state-card p {
+            max-width: 430px;
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .state-card.error {
+            border-color: #fecaca;
+            background: #fffafa;
+        }
+
+        .state-card.error .state-icon {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .retry-button {
+            margin-top: 16px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .loading-grid {
+            display: none;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .loading-grid.visible {
+            display: grid;
+        }
+
+        .skeleton-card {
+            height: 285px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: linear-gradient(
+                90deg,
+                #eef2f7 25%,
+                #f8fafc 50%,
+                #eef2f7 75%
+            );
+            background-size: 200% 100%;
+            animation: loading 1.3s infinite;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 30;
+            display: none;
+            padding: 12px 16px;
+            border-radius: 11px;
+            background: #172033;
+            color: white;
+            font-size: 13px;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.22);
+        }
+
+        .toast.visible {
+            display: block;
+        }
+
+        @keyframes loading {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        @media (max-width: 1050px) {
+            .notes-grid,
+            .loading-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 950px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -270px;
+                z-index: 20;
+                width: 250px;
+                transition: left 0.25s ease;
+                box-shadow: 18px 0 45px rgba(15, 23, 42, 0.13);
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .main-content {
+                padding: 28px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 20px 16px 35px;
+            }
+
+            .topbar {
+                flex-direction: column;
+            }
+
+            .upload-button {
+                width: 100%;
+            }
+
+            .toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .notes-grid,
+            .loading-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-layout">
+        <aside id="sidebar" class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <span>Notes</span>
+            </div>
+
+            <nav class="nav-links" aria-label="Main navigation">
+                <a class="nav-link" href="dashboard.html">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link active" href="my-notes.html">
+                    <span class="nav-icon">▤</span>
+                    My notes
+                </a>
+
+                <a class="nav-link" href="upload-note.html">
+                    <span class="nav-icon">＋</span>
+                    Upload note
+                </a>
+
+                <a class="nav-link" href="explore.html">
+                    <span class="nav-icon">⌕</span>
+                    Explore
+                </a>
+
+                <a class="nav-link" href="profile.html">
+                    <span class="nav-icon">◉</span>
+                    Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutButton" class="logout-button" type="button">
+                    <span class="nav-icon">↪</span>
+                    Log out
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button
+                        id="menuButton"
+                        class="mobile-menu-button"
+                        type="button"
+                        aria-label="Open navigation"
+                    >
+                        ☰
+                    </button>
+
+                    <div>
+                        <h1>My Notes</h1>
+                        <p class="subtitle">
+                            View and open all your active uploaded notes.
+                        </p>
+                    </div>
+                </div>
+
+                <a class="upload-button" href="upload-note.html">
+                    <span>＋</span>
+                    Upload new note
+                </a>
+            </header>
+
+            <section class="toolbar">
+                <p class="count-text">
+                    <strong id="noteCount">0</strong>
+                    <span id="countLabel">notes found</span>
+                </p>
+
+                <button id="refreshButton" class="refresh-button" type="button">
+                    Refresh
+                </button>
+            </section>
+
+            <section id="loadingGrid" class="loading-grid visible" aria-label="Loading notes">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </section>
+
+            <section id="notesGrid" class="notes-grid"></section>
+
+            <section id="emptyState" class="state-card">
+                <div class="state-icon">▤</div>
+                <h2>No notes uploaded yet</h2>
+                <p>
+                    Upload your first PDF note and it will appear here automatically.
+                </p>
+            </section>
+
+            <section id="errorState" class="state-card error">
+                <div class="state-icon">!</div>
+                <h2>Could not load your notes</h2>
+                <p id="errorMessage">
+                    Something went wrong while connecting to the backend.
+                </p>
+
+                <button id="retryButton" class="retry-button" type="button">
+                    Try again
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        const token = localStorage.getItem("token");
+
+        const sidebar = document.getElementById("sidebar");
+        const menuButton = document.getElementById("menuButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const refreshButton = document.getElementById("refreshButton");
+        const retryButton = document.getElementById("retryButton");
+
+        const notesGrid = document.getElementById("notesGrid");
+        const loadingGrid = document.getElementById("loadingGrid");
+        const emptyState = document.getElementById("emptyState");
+        const errorState = document.getElementById("errorState");
+        const errorMessage = document.getElementById("errorMessage");
+        const noteCount = document.getElementById("noteCount");
+        const countLabel = document.getElementById("countLabel");
+        const toast = document.getElementById("toast");
+
+        function redirectToLogin() {
+            localStorage.removeItem("token");
+            window.location.replace("login.html");
+        }
+
+        function setLoading(isLoading) {
+            loadingGrid.classList.toggle("visible", isLoading);
+            refreshButton.disabled = isLoading;
+            refreshButton.textContent = isLoading ? "Loading..." : "Refresh";
+        }
+
+        function hideStates() {
+            emptyState.classList.remove("visible");
+            errorState.classList.remove("visible");
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("visible");
+
+            setTimeout(function () {
+                toast.classList.remove("visible");
+            }, 1800);
+        }
+
+        function getFileName(url, index) {
+            try {
+                const parsedUrl = new URL(url);
+                const pathParts = parsedUrl.pathname.split("/");
+                const rawName = pathParts[pathParts.length - 1];
+
+                if (!rawName) {
+                    return `Note ${index + 1}`;
+                }
+
+                return decodeURIComponent(rawName);
+            } catch {
+                return `Note ${index + 1}`;
+            }
+        }
+
+        function createNoteCard(url, index) {
+            const card = document.createElement("article");
+            card.className = "note-card";
+
+            const preview = document.createElement("div");
+            preview.className = "note-preview";
+
+            const pdfIcon = document.createElement("div");
+            pdfIcon.className = "pdf-icon";
+            pdfIcon.textContent = "PDF";
+
+            preview.appendChild(pdfIcon);
+
+            const body = document.createElement("div");
+            body.className = "note-body";
+
+            const label = document.createElement("p");
+            label.className = "note-label";
+            label.textContent = `Note ${index + 1}`;
+
+            const title = document.createElement("h2");
+            title.className = "note-title";
+            title.textContent = getFileName(url, index);
+            title.title = title.textContent;
+
+            const actions = document.createElement("div");
+            actions.className = "note-actions";
+
+            const openLink = document.createElement("a");
+            openLink.className = "open-note";
+            openLink.href = url;
+            openLink.target = "_blank";
+            openLink.rel = "noopener noreferrer";
+            openLink.textContent = "Open PDF";
+
+            const copyButton = document.createElement("button");
+            copyButton.className = "copy-button";
+            copyButton.type = "button";
+            copyButton.title = "Copy note link";
+            copyButton.setAttribute("aria-label", "Copy note link");
+            copyButton.textContent = "⧉";
+
+            copyButton.addEventListener("click", async function () {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast("Note link copied");
+                } catch {
+                    showToast("Could not copy the link");
+                }
+            });
+
+            actions.appendChild(openLink);
+            actions.appendChild(copyButton);
+
+            body.appendChild(label);
+            body.appendChild(title);
+            body.appendChild(actions);
+
+            card.appendChild(preview);
+            card.appendChild(body);
+
+            return card;
+        }
+
+        function renderNotes(noteUrls) {
+            notesGrid.innerHTML = "";
+
+            noteCount.textContent = noteUrls.length;
+            countLabel.textContent = noteUrls.length === 1
+                ? "note found"
+                : "notes found";
+
+            if (noteUrls.length === 0) {
+                emptyState.classList.add("visible");
+                return;
+            }
+
+            noteUrls.forEach(function (url, index) {
+                notesGrid.appendChild(createNoteCard(url, index));
+            });
+        }
+
+        async function loadNotes() {
+            hideStates();
+            notesGrid.innerHTML = "";
+            noteCount.textContent = "0";
+            countLabel.textContent = "notes found";
+            setLoading(true);
+
+            if (!token) {
+                redirectToLogin();
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/user/notes/getnotesall`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.status === 401) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let message = "Could not load your notes.";
+
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        message = errorData.message || errorData.error || message;
+                    } catch {
+                        if (responseText) {
+                            message = responseText;
+                        }
+                    }
+
+                    throw new Error(message);
+                }
+
+                let data;
+
+                try {
+                    data = JSON.parse(responseText);
+                } catch {
+                    throw new Error("The backend returned invalid notes data.");
+                }
+
+                if (!Array.isArray(data)) {
+                    throw new Error("The backend returned invalid notes data.");
+                }
+
+                const validUrls = data.filter(function (item) {
+                    return typeof item === "string" && item.trim() !== "";
+                });
+
+                renderNotes(validUrls);
+
+            } catch (error) {
+                errorMessage.textContent = error instanceof TypeError
+                    ? "Could not connect to the backend server."
+                    : error.message;
+
+                errorState.classList.add("visible");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        logoutButton.addEventListener("click", redirectToLogin);
+        refreshButton.addEventListener("click", loadNotes);
+        retryButton.addEventListener("click", loadNotes);
+
+        menuButton.addEventListener("click", function () {
+            sidebar.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (event) {
+            const clickedInsideSidebar = sidebar.contains(event.target);
+            const clickedMenuButton = menuButton.contains(event.target);
+
+            if (
+                window.innerWidth <= 950 &&
+                !clickedInsideSidebar &&
+                !clickedMenuButton
+            ) {
+                sidebar.classList.remove("open");
+            }
+        });
+
+        loadNotes();
+    </script>
+</body>
+</html>

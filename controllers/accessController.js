@@ -1,166 +1,113 @@
 import notes from '../model/notes.js'
 import user from '../model/user.js'
 
-export async function AddAccess(req, res) {
-    try {
-        const noteId = req.body.noteId
-        const email = req.body.email?.trim().toLowerCase()
 
-        if (!noteId || !email) {
-            return res.status(400).json({
-                message: 'Note ID and email are required'
-            })
-        }
+export async function AddAccess(req,res){
+
+    try{
+        const { noteId , email } = req.body
+
 
         const note = await notes.findById(noteId)
 
-        if (!note || note.status !== 'active') {
-            return res.status(404).json({
-                message: 'Note not found'
-            })
+        if(!note){
+            return res.status(404).send("Note not found")
+        } // 404 -> server speicific request kiya  hua resource nahi dhund paya
+
+
+        if(note.user !== req.user){
+            return res.status(403).send("Not owner")
+        } // forbidden from requesting that data
+
+
+        const User = await user.findOne({email})
+
+        if(!User){
+            return res.status(404).send("User not found")
         }
-
-        if (note.user.toString() !== req.user.toString()) {
-            return res.status(403).json({
-                message: 'Not owner'
-            })
+        if(note.access.includes(User._id)){
+            return res.send("User already has access")
         }
-
-        const foundUser = await user.findOne({ email })
-
-        if (!foundUser) {
-            return res.status(404).json({
-                message: 'User not found'
-            })
-        }
-
-        if (foundUser._id.toString() === req.user.toString()) {
-            return res.status(400).json({
-                message: 'You already own this note'
-            })
-        }
-
-        const alreadyAdded = note.access.some(
-            id => id.toString() === foundUser._id.toString()
-        )
-
-        if (alreadyAdded) {
-            return res.status(400).json({
-                message: 'User already has access'
-            })
-        }
-
-        note.access.push(foundUser._id)
+        note.access.push(User._id)
         await note.save()
-
-        const updatedNote = await notes
-            .findById(note._id)
-            .populate('access', 'username email')
-
-        res.status(200).json({
-            message: 'Access added',
-            access: updatedNote.access
-        })
-    } catch (err) {
+        res.send("Access added")
+    }catch(err){
         console.error(err)
-        res.status(500).json({
-            message: 'Server Error'
-        })
+        res.status(500).send("Server Error")
     }
+
 }
 
-export async function RemoveAccess(req, res) {
-    try {
-        const noteId = req.body.noteId
-        const email = req.body.email?.trim().toLowerCase()
 
-        if (!noteId || !email) {
-            return res.status(400).json({
-                message: 'Note ID and email are required'
-            })
-        }
+
+export async function RemoveAccess(req,res){
+
+    try{
+
+        const { noteId , email } = req.body
 
         const note = await notes.findById(noteId)
 
-        if (!note || note.status !== 'active') {
-            return res.status(404).json({
-                message: 'Note not found'
-            })
+        if(!note){
+            return res.status(404).send("Note not found")
         }
-
-        if (note.user.toString() !== req.user.toString()) {
-            return res.status(403).json({
-                message: 'Not owner'
-            })
+        if(note.user.toString() !== req.user){
+            return res.status(403).send("Not owner")
         }
+        const User = await user.findOne({email})
 
-        const foundUser = await user.findOne({ email })
-
-        if (!foundUser) {
-            return res.status(404).json({
-                message: 'User not found'
-            })
+        if(!User){
+            return res.status(404).send("User not found")
         }
 
         note.access = note.access.filter(
-            id => id.toString() !== foundUser._id.toString()
+            id => id.toString() !== User._id.toString()
         )
 
         await note.save()
 
-        const updatedNote = await notes
-            .findById(note._id)
-            .populate('access', 'username email')
+        res.send("Access removed")
 
-        res.status(200).json({
-            message: 'Access removed',
-            access: updatedNote.access
-        })
-    } catch (err) {
+    }catch(err){
+
         console.error(err)
-        res.status(500).json({
-            message: 'Server Error'
-        })
+
+        res.status(500).send("Server Error")
+
     }
+
 }
 
-export async function ChangeVisibility(req, res) {
-    try {
-        const noteId = req.body.noteId
-        const visibility = req.body.visibility
-        const allowed = ['public', 'private', 'shared']
 
-        if (!noteId || !allowed.includes(visibility)) {
-            return res.status(400).json({
-                message: 'Valid note ID and visibility are required'
-            })
-        }
+
+export async function ChangeVisibility(req,res){
+
+    try{
+
+        const { noteId , visibility } = req.body
 
         const note = await notes.findById(noteId)
 
-        if (!note || note.status !== 'active') {
-            return res.status(404).json({
-                message: 'Note not found'
-            })
+        if(!note){
+            return res.status(404).send("Note not found")
         }
-
-        if (note.user.toString() !== req.user.toString()) {
-            return res.status(403).json({
-                message: 'Not owner'
-            })
+// sirf owner visiblity change kar sakta hai 
+        if(note.user.toString() !== req.user){
+            return res.status(403).send("Not owner")
         }
 
         note.visibility = visibility
+
         await note.save()
 
-        res.status(200).json({
-            message: 'Visibility updated',
-            visibility: note.visibility
-        })
-    } catch (err) {
+        res.send("Visibility updated")
+
+    }catch(err){
+
         console.error(err)
-        res.status(500).json({
-            message: 'Server Error'
-        })
+
+        res.status(500).send("Server Error")
+
     }
+
 }

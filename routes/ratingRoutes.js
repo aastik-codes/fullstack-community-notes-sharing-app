@@ -1,12 +1,16 @@
-import express from 'express'
-import { authMiddleware } from '../middleware/authMiddleware.js'
-import { canAccessNote } from '../middleware/accessMiddleware.js'
-import { RateNote } from '../controllers/ratingController.js'
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { canAccessNote } from "../middleware/accessMiddleware.js";
+import { RateNote } from "../controllers/ratingController.js";
 
-const router = express.Router()
+const Rrouter = express.Router();
 
-router.use(authMiddleware)
+Rrouter.use(authMiddleware);
 
-router.post('/user/notes/rate', canAccessNote, RateNote)
+Rrouter.post(
+    "/user/notes/rate",canAccessNote,(req, res) => {
+        RateNote(req, res);
+    }
+);
 
-export default router
+export default Rrouter;

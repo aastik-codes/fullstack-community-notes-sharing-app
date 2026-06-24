@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --text: #172033;
+            --muted: #6b7280;
+            --border: #dbe2ea;
+            --surface: rgba(255, 255, 255, 0.94);
+            --danger: #b91c1c;
+            --success: #166534;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 28px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.22), transparent 26%),
+                radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.18), transparent 28%),
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #faf5ff 100%);
+        }
+
+        .page-shell {
+            width: 100%;
+            max-width: 980px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 28px;
+            background: var(--surface);
+            box-shadow: 0 30px 90px rgba(30, 41, 59, 0.14);
+            backdrop-filter: blur(16px);
+        }
+
+        .visual-panel {
+            position: relative;
+            min-height: 620px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 42px;
+            overflow: hidden;
+            color: white;
+            background:
+                linear-gradient(145deg, rgba(67, 56, 202, 0.96), rgba(124, 58, 237, 0.92)),
+                #4f46e5;
+        }
+
+        .visual-panel::before,
+        .visual-panel::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .visual-panel::before {
+            width: 260px;
+            height: 260px;
+            top: -90px;
+            right: -80px;
+        }
+
+        .visual-panel::after {
+            width: 190px;
+            height: 190px;
+            bottom: -60px;
+            left: -50px;
+        }
+
+        .brand,
+        .visual-copy,
+        .feature-list {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: white;
+            color: var(--primary);
+            font-size: 19px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+        }
+
+        .visual-copy h2 {
+            max-width: 360px;
+            margin-bottom: 16px;
+            font-size: 42px;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+        }
+
+        .visual-copy p {
+            max-width: 370px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.14);
+            font-weight: 700;
+        }
+
+        .form-panel {
+            padding: 44px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .mobile-brand {
+            display: none;
+        }
+
+        .form-panel h1 {
+            margin-bottom: 8px;
+            font-size: 32px;
+            line-height: 1.2;
+            letter-spacing: -0.6px;
+        }
+
+        .subtitle {
+            margin-bottom: 28px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: #ffffff;
+            color: var(--text);
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.11);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 72px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .password-hint {
+            margin-top: 7px;
+            color: #8a94a5;
+            font-size: 12px;
+        }
+
+        .signup-button {
+            width: 100%;
+            margin-top: 4px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.22);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .signup-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.28);
+        }
+
+        .signup-button:disabled {
+            cursor: not-allowed;
+            transform: none;
+            background: #a5b4fc;
+            box-shadow: none;
+        }
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 11px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.error {
+            display: block;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .message.success {
+            display: block;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            color: var(--success);
+        }
+
+        .login-text {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .login-text a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .login-text a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 820px) {
+            .page-shell {
+                max-width: 500px;
+                grid-template-columns: 1fr;
+            }
+
+            .visual-panel {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 38px 30px;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 30px;
+                color: var(--primary);
+                font-weight: 700;
+            }
+
+            .mobile-brand .brand-mark {
+                color: white;
+                background: var(--primary);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .page-shell {
+                border-radius: 22px;
+            }
+
+            .form-panel {
+                padding: 30px 22px;
+            }
+
+            .form-panel h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page-shell">
+        <section class="visual-panel">
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <span>Notes</span>
+            </div>
+
+            <div class="visual-copy">
+                <h2>Your notes, organised beautifully.</h2>
+                <p>
+                    Create your account to upload, share, rate and discover useful notes.
+                </p>
+            </div>
+
+            <div class="feature-list">
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Upload and manage your notes</span>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Control privacy and sharing</span>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <span>Discover notes from other users</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="mobile-brand">
+                <div class="brand-mark">N</div>
+                <span>Notes</span>
+            </div>
+
+            <h1>Create your account</h1>
+            <p class="subtitle">
+                Enter your details below to get started.
+            </p>
+
+            <form id="signupForm" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="Choose a username"
+                        autocomplete="username"
+                        maxlength="50"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Minimum 6 characters"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                        <button
+                            id="togglePassword"
+                            class="toggle-password"
+                            type="button"
+                        >
+                            Show
+                        </button>
+                    </div>
+
+                    <p class="password-hint">
+                        Use at least 6 characters.
+                    </p>
+                </div>
+
+                <button id="signupButton" class="signup-button" type="submit">
+                    Create account
+                </button>
+
+                <div id="message" class="message" aria-live="polite"></div>
+            </form>
+
+            <p class="login-text">
+                Already have an account?
+                <a href="login.html">Log in</a>
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+
+        const signupForm = document.getElementById("signupForm");
+        const usernameInput = document.getElementById("username");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const signupButton = document.getElementById("signupButton");
+        const messageBox = document.getElementById("message");
+        const togglePassword = document.getElementById("togglePassword");
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message ${type}`;
+        }
+
+        function clearMessage() {
+            messageBox.textContent = "";
+            messageBox.className = "message";
+        }
+
+        togglePassword.addEventListener("click", function () {
+            const isHidden = passwordInput.type === "password";
+
+            passwordInput.type = isHidden ? "text" : "password";
+            togglePassword.textContent = isHidden ? "Hide" : "Show";
+        });
+
+        signupForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            clearMessage();
+
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!username || !email || !password) {
+                showMessage("Please fill in all fields.", "error");
+                return;
+            }
+
+            if (!emailInput.validity.valid) {
+                showMessage("Please enter a valid email address.", "error");
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage(
+                    "Password must contain at least 6 characters.",
+                    "error"
+                );
+                return;
+            }
+
+            signupButton.disabled = true;
+            signupButton.textContent = "Creating account...";
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/signup`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let errorMessage = "Could not create your account.";
+
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        if (responseText) {
+                            errorMessage = responseText;
+                        }
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                showMessage(
+                    "Account created successfully. Redirecting to login...",
+                    "success"
+                );
+
+                signupForm.reset();
+                passwordInput.type = "password";
+                togglePassword.textContent = "Show";
+
+                setTimeout(function () {
+                    window.location.href = "login.html";
+                }, 800);
+
+            } catch (error) {
+                if (error instanceof TypeError) {
+                    showMessage(
+                        "Could not connect to the backend server.",
+                        "error"
+                    );
+                } else {
+                    showMessage(error.message, "error");
+                }
+            } finally {
+                signupButton.disabled = false;
+                signupButton.textContent = "Create account";
+            }
+        });
+    </script>
+</body>
+</html>

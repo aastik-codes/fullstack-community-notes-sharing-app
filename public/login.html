@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top left, #e0e7ff, transparent 35%),
+                radial-gradient(circle at bottom right, #ddd6fe, transparent 35%),
+                #f8fafc;
+            color: #1e293b;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 36px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 24px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+            backdrop-filter: blur(14px);
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 22px;
+            border-radius: 14px;
+            background: #4f46e5;
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 30px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            margin-bottom: 28px;
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            background: white;
+            color: #0f172a;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 72px;
+        }
+
+        .show-password {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #4f46e5;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            display: block;
+            width: fit-content;
+            margin: -4px 0 22px auto;
+            color: #4f46e5;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: #4f46e5;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .login-button:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .login-button:disabled {
+            background: #a5b4fc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.error {
+            display: block;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .message.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .signup-text {
+            margin-top: 24px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .signup-text a {
+            color: #4f46e5;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .signup-text a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 22px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="login-card">
+        <div class="logo">N</div>
+
+        <h1>Welcome back</h1>
+        <p class="subtitle">
+            Log in to access your notes, ratings and shared content.
+        </p>
+
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <div class="password-wrapper">
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        minlength="6"
+                        required
+                    >
+
+                    <button
+                        id="showPasswordButton"
+                        class="show-password"
+                        type="button"
+                    >
+                        Show
+                    </button>
+                </div>
+            </div>
+
+            <a class="forgot-link" href="forgot-password.html">
+                Forgot password?
+            </a>
+
+            <button id="loginButton" class="login-button" type="submit">
+                Log in
+            </button>
+
+            <div id="message" class="message" aria-live="polite"></div>
+        </form>
+
+        <p class="signup-text">
+            New here?
+            <a href="signup.html">Create an account</a>
+        </p>
+    </main>
+
+    <script>
+        /*
+            BACKEND CONNECTION
+
+            This uses the same domain as the frontend.
+
+            During local development, open the frontend through:
+            http://localhost:3000
+
+            Or replace API_BASE_URL with your deployed backend URL.
+        */
+        const API_BASE_URL = window.location.origin;
+
+        const loginForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginButton = document.getElementById("loginButton");
+        const messageBox = document.getElementById("message");
+        const showPasswordButton = document.getElementById("showPasswordButton");
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = `message ${type}`;
+        }
+
+        function clearMessage() {
+            messageBox.textContent = "";
+            messageBox.className = "message";
+        }
+
+        function looksLikeJwt(token) {
+            return typeof token === "string" && token.split(".").length === 3;
+        }
+
+        showPasswordButton.addEventListener("click", function () {
+            const passwordIsHidden = passwordInput.type === "password";
+
+            passwordInput.type = passwordIsHidden ? "text" : "password";
+            showPasswordButton.textContent = passwordIsHidden ? "Hide" : "Show";
+        });
+
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            clearMessage();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showMessage("Please enter both email and password.", "error");
+                return;
+            }
+
+            if (!emailInput.validity.valid) {
+                showMessage("Please enter a valid email address.", "error");
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage("Password must contain at least 6 characters.", "error");
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Logging in...";
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let errorMessage = "Login failed. Please try again.";
+
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        errorMessage = errorData.message || errorMessage;
+                    } catch {
+                        if (responseText) {
+                            errorMessage = responseText;
+                        }
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                if (!looksLikeJwt(responseText)) {
+                    throw new Error(responseText || "Invalid email or password.");
+                }
+
+                localStorage.setItem("token", responseText);
+
+                showMessage("Login successful. Redirecting...", "success");
+
+                setTimeout(function () {
+                    window.location.href = "dashboard.html";
+                }, 600);
+
+            } catch (error) {
+                if (error instanceof TypeError) {
+                    showMessage(
+                        "Could not connect to the backend server.",
+                        "error"
+                    );
+                } else {
+                    showMessage(error.message, "error");
+                }
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "Log in";
+            }
+        });
+    </script>
+</body>
+</html>
+

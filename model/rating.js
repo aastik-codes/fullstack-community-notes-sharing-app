@@ -1,19 +1,21 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const { Schema } = mongoose
+const { Schema } = mongoose;
 
 const ratingSchema = new Schema(
     {
         user: {
             type: Schema.Types.ObjectId,
-            ref: 'User',
+            ref: "User",
             required: true
         },
+
         note: {
             type: Schema.Types.ObjectId,
-            ref: 'Note',
+            ref: "Note",
             required: true
         },
+
         rating: {
             type: Number,
             required: true,
@@ -21,9 +23,11 @@ const ratingSchema = new Schema(
             max: 5
         }
     },
-    { timestamps: true }
-)
+    { timestamps: true });
 
+
+
+// One user can only have one rating for one note
 ratingSchema.index(
     {
         user: 1,
@@ -32,6 +36,6 @@ ratingSchema.index(
     {
         unique: true
     }
-)
+);
 
-export default mongoose.model('Rating', ratingSchema)
+export default mongoose.model("Rating", ratingSchema);

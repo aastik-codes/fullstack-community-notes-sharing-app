@@ -1,116 +1,120 @@
-import Comment from '../model/comment.js'
-import notes from '../model/notes.js'
+import Rating from "../model/rating.js";
+import notes from "../model/notes.js";
+import user from "../model/user.js";
 
-export async function AddComment(req, res) {
+export async function RateNote(req, res) {
     try {
-        const noteId = req.body.noteId
-        const message = req.body.message?.trim()
-
-        if (!noteId || !message) {
+        const { noteId, rating } = req.body;
+        if (!noteId || rating === undefined) {
             return res.status(400).json({
-                message: 'Note ID and comment message are required'
-            })
+                error: "Note ID and rating are required"
+            });
+        }
+        if (
+            typeof rating !== "number" ||
+            rating < 1 ||
+            rating > 5
+        ) {
+            return res.status(400).json({
+                message: "Rating must be a whole number between 1 and 5"
+            });
         }
 
-        const note = await notes.findById(noteId)
+        const note = await notes.findById(noteId);
 
-        if (!note || note.status !== 'active') {
+        if (!note) {
             return res.status(404).json({
-                message: 'Note not found'
-            })
+                message: "Note not found"
+            });
         }
-
-        const newComment = await Comment.create({
+        // agar exist karti hai toh find the existing rating jo iss user ne di hai pehle 
+        let savedRating = await Rating.findOne({
             user: req.user,
-            note: noteId,
-            message
-        })
+            note: noteId
+        });
 
-        const populatedComment = await Comment
-            .findById(newComment._id)
-            .populate('user', 'username email')
+        if (savedRating) {
+            // agar mil gayi toh usse update kar rha 
+            savedRating.rating = rating;
+            await savedRating.save();
+        } else {
+            // nahi milli toh new rating 
+            savedRating = new Rating({
+                user: req.user,
+                note: noteId,
+                rating: rating
+            });
 
-        res.status(201).json({
-            message: 'Comment added',
-            comment: {
-                ...populatedComment.toObject(),
-                isOwner: true
-            }
-        })
-    } catch (err) {
-        console.error(err)
-        res.status(500).json({
-            message: 'Server Error'
-        })
-    }
-}
-
-export async function GetComments(req, res) {
-    try {
-        const noteId = req.body.noteId
-
-        if (!noteId) {
-            return res.status(400).json({
-                message: 'Note ID is required'
-            })
+            await savedRating.save();
         }
 
-        const comments = await Comment
-            .find({ note: noteId })
-            .populate('user', 'username email')
-            .sort({ createdAt: 1 })
-            .lean()
+        // finding average rating 
+        const noteRatings = await Rating.find({
+            note: noteId
+        });
 
-        const safeComments = comments.map(comment => ({
-            ...comment,
-            isOwner: comment.user?._id?.toString() === req.user.toString()
-        }))
+        let noteRatingTotal = 0;
+
+        for (let currentRating of noteRatings) {
+            noteRatingTotal += currentRating.rating;
+        }
+
+        const noteAverageRating =
+            noteRatings.length > 0
+                ? noteRatingTotal / noteRatings.length
+                : 0;
+
+        // Store average rating in the note
+        note.rating = Number(noteAverageRating.toFixed(2));
+
+        await note.save();
+
+        // Find all notes uploaded by the owner of this note
+        const ownerNotes = await notes.find({
+            user: note.user,
+            status: "active"
+        });
+
+        let userRatingTotal = 0;
+
+        for (let ownerNote of ownerNotes) {
+            userRatingTotal += ownerNote.rating;
+        }
+
+        const userAverageRating =
+            ownerNotes.length > 0
+                ? userRatingTotal / ownerNotes.length
+                : 0;
+
+        // Update note owner's rating
+        const noteOwner = await user.findById(note.user);
+
+        if (noteOwner) {
+            noteOwner.Rating = Number(userAverageRating.toFixed(2));
+            await noteOwner.save();
+        }
 
         res.status(200).json({
-            totalComments: safeComments.length,
-            comments: safeComments
-        })
+            message: savedRating.createdAt.getTime() === savedRating.updatedAt.getTime()
+                ? "Rating saved"
+                : "Rating updated",
+
+            rating: savedRating.rating,
+            noteAverageRating: note.rating,
+            userAverageRating: noteOwner ? noteOwner.Rating : 0
+        });
+
     } catch (err) {
-        console.error(err)
-        res.status(500).json({
-            message: 'Server Error'
-        })
-    }
-}
+        console.error(err);
 
-export async function DeleteComment(req, res) {
-    try {
-        const commentId = req.body.commentId
-
-        if (!commentId) {
+        if (err.code === 11000) {
             return res.status(400).json({
-                message: 'Comment ID is required'
-            })
+                message: "You have already rated this note"
+            });
         }
 
-        const comment = await Comment.findById(commentId)
-
-        if (!comment) {
-            return res.status(404).json({
-                message: 'Comment not found'
-            })
-        }
-
-        if (comment.user.toString() !== req.user.toString()) {
-            return res.status(403).json({
-                message: 'You can only delete your own comment'
-            })
-        }
-
-        await Comment.findByIdAndDelete(commentId)
-
-        res.status(200).json({
-            message: 'Comment deleted'
-        })
-    } catch (err) {
-        console.error(err)
         res.status(500).json({
-            message: 'Server Error'
-        })
+            message: "Server Error"
+        });
     }
 }

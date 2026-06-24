@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Notes | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --purple: #7c3aed;
+            --background: #f6f7fb;
+            --surface: #ffffff;
+            --text: #172033;
+            --muted: #697386;
+            --border: #e2e8f0;
+            --danger: #b91c1c;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 28%),
+                var(--background);
+        }
+
+        button,
+        input,
+        select,
+        a {
+            font: inherit;
+        }
+
+        .page-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+            border-right: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(16px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+            margin-bottom: 38px;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.23);
+        }
+
+        .nav-links {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
+        .logout-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: transparent;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .main-content {
+            min-width: 0;
+            padding: 34px 40px 50px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .mobile-menu-button {
+            display: none;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        h1 {
+            margin-bottom: 7px;
+            font-size: 32px;
+            letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .search-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 180px 130px;
+            gap: 12px;
+            margin-bottom: 22px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            color: var(--text);
+            outline: none;
+        }
+
+        input {
+            padding: 0 15px 0 42px;
+        }
+
+        select {
+            padding: 0 12px;
+            cursor: pointer;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-button {
+            height: 46px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.18);
+        }
+
+        .search-button:disabled {
+            cursor: not-allowed;
+            background: #a5b4fc;
+            box-shadow: none;
+        }
+
+        .results-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .results-bar strong {
+            color: var(--text);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .note-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 12px 34px rgba(15, 23, 42, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .note-preview {
+            min-height: 150px;
+            display: grid;
+            place-items: center;
+            background:
+                linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.1)),
+                #f8fafc;
+        }
+
+        .pdf-icon {
+            width: 66px;
+            height: 80px;
+            position: relative;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: white;
+            color: var(--primary);
+            font-weight: 800;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        }
+
+        .pdf-icon::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 17px solid #dbeafe;
+            border-left: 17px solid transparent;
+        }
+
+        .note-body {
+            padding: 18px;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 13px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .user-info {
+            min-width: 0;
+        }
+
+        .username {
+            overflow: hidden;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .email {
+            overflow: hidden;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .note-title {
+            margin-bottom: 13px;
+            overflow: hidden;
+            font-size: 15px;
+            line-height: 1.4;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 15px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .rating {
+            color: #b45309;
+            font-weight: 700;
+        }
+
+        .note-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+        }
+
+        .open-button,
+        .details-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 11px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .open-button {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .details-button {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+        }
+
+        .pagination {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .pagination.visible {
+            display: flex;
+        }
+
+        .page-button {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 13px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: white;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .page-button:hover:not(:disabled) {
+            border-color: #c7d2fe;
+            color: var(--primary);
+        }
+
+        .page-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .page-indicator {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .state-card {
+            display: none;
+            padding: 46px 24px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: white;
+            text-align: center;
+        }
+
+        .state-card.visible {
+            display: block;
+        }
+
+        .state-icon {
+            width: 62px;
+            height: 62px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+            border-radius: 18px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 27px;
+        }
+
+        .state-card h2 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .state-card p {
+            max-width: 430px;
+            margin: auto;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .state-card.error {
+            border-color: #fecaca;
+            background: #fffafa;
+        }
+
+        .state-card.error .state-icon {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .retry-button {
+            margin-top: 16px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .loading-grid {
+            display: none;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .loading-grid.visible {
+            display: grid;
+        }
+
+        .skeleton-card {
+            height: 330px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: linear-gradient(
+                90deg,
+                #eef2f7 25%,
+                #f8fafc 50%,
+                #eef2f7 75%
+            );
+            background-size: 200% 100%;
+            animation: loading 1.3s infinite;
+        }
+
+        @keyframes loading {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        @media (max-width: 1080px) {
+            .notes-grid,
+            .loading-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 950px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -270px;
+                z-index: 20;
+                width: 250px;
+                transition: left 0.25s ease;
+                box-shadow: 18px 0 45px rgba(15, 23, 42, 0.13);
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .main-content {
+                padding: 28px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .search-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .notes-grid,
+            .loading-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main-content {
+                padding: 20px 16px 35px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .results-bar {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-layout">
+        <aside id="sidebar" class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <span>Notes</span>
+            </div>
+
+            <nav class="nav-links" aria-label="Main navigation">
+                <a class="nav-link" href="dashboard.html">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link" href="my-notes.html">
+                    <span class="nav-icon">▤</span>
+                    My notes
+                </a>
+
+                <a class="nav-link" href="upload-note.html">
+                    <span class="nav-icon">＋</span>
+                    Upload note
+                </a>
+
+                <a class="nav-link active" href="explore.html">
+                    <span class="nav-icon">⌕</span>
+                    Explore
+                </a>
+
+                <a class="nav-link" href="profile.html">
+                    <span class="nav-icon">◉</span>
+                    Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutButton" class="logout-button" type="button">
+                    <span class="nav-icon">↪</span>
+                    Log out
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <button
+                    id="menuButton"
+                    class="mobile-menu-button"
+                    type="button"
+                    aria-label="Open navigation"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <h1>Explore Notes</h1>
+                    <p class="subtitle">
+                        Search public notes by username or email.
+                    </p>
+                </div>
+            </header>
+
+            <form id="searchForm" class="search-panel">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">⌕</span>
+
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="Search username or email"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <select id="sortSelect" aria-label="Sort notes">
+                    <option value="">Default sorting</option>
+                    <option value="highest">Highest rated</option>
+                    <option value="lowest">Lowest rated</option>
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+
+                <button id="searchButton" class="search-button" type="submit">
+                    Search
+                </button>
+            </form>
+
+            <div class="results-bar">
+                <span>
+                    <strong id="totalNotes">0</strong>
+                    public notes found
+                </span>
+
+                <span id="pageSummary"></span>
+            </div>
+
+            <section id="loadingGrid" class="loading-grid visible" aria-label="Loading notes">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </section>
+
+            <section id="notesGrid" class="notes-grid"></section>
+
+            <section id="emptyState" class="state-card">
+                <div class="state-icon">⌕</div>
+                <h2>No public notes found</h2>
+                <p>
+                    Try another username or email, or clear the search to see all available notes.
+                </p>
+            </section>
+
+            <section id="errorState" class="state-card error">
+                <div class="state-icon">!</div>
+                <h2>Could not load notes</h2>
+                <p id="errorMessage">
+                    Something went wrong while connecting to the backend.
+                </p>
+
+                <button id="retryButton" class="retry-button" type="button">
+                    Try again
+                </button>
+            </section>
+
+            <nav id="pagination" class="pagination" aria-label="Pagination">
+                <button id="previousButton" class="page-button" type="button">
+                    Previous
+                </button>
+
+                <span id="pageIndicator" class="page-indicator"></span>
+
+                <button id="nextButton" class="page-button" type="button">
+                    Next
+                </button>
+            </nav>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+        const PAGE_LIMIT = 6;
+
+        const token = localStorage.getItem("token");
+
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const searchButton = document.getElementById("searchButton");
+
+        const notesGrid = document.getElementById("notesGrid");
+        const loadingGrid = document.getElementById("loadingGrid");
+        const emptyState = document.getElementById("emptyState");
+        const errorState = document.getElementById("errorState");
+        const errorMessage = document.getElementById("errorMessage");
+
+        const totalNotesElement = document.getElementById("totalNotes");
+        const pageSummary = document.getElementById("pageSummary");
+
+        const pagination = document.getElementById("pagination");
+        const previousButton = document.getElementById("previousButton");
+        const nextButton = document.getElementById("nextButton");
+        const pageIndicator = document.getElementById("pageIndicator");
+
+        const retryButton = document.getElementById("retryButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const menuButton = document.getElementById("menuButton");
+        const sidebar = document.getElementById("sidebar");
+
+        let currentPage = 1;
+        let totalPages = 0;
+        let activeSearch = "";
+        let activeSort = "";
+
+        function redirectToLogin() {
+            localStorage.removeItem("token");
+            window.location.replace("login.html");
+        }
+
+        function hideStates() {
+            emptyState.classList.remove("visible");
+            errorState.classList.remove("visible");
+            pagination.classList.remove("visible");
+        }
+
+        function setLoading(isLoading) {
+            loadingGrid.classList.toggle("visible", isLoading);
+            searchButton.disabled = isLoading;
+            searchButton.textContent = isLoading ? "Loading..." : "Search";
+        }
+
+        function getFileName(url, fallback) {
+            try {
+                const parsedUrl = new URL(url);
+                const parts = parsedUrl.pathname.split("/");
+                const rawName = parts[parts.length - 1];
+
+                return rawName
+                    ? decodeURIComponent(rawName)
+                    : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function getInitial(username) {
+            if (!username || typeof username !== "string") {
+                return "U";
+            }
+
+            return username.trim().charAt(0).toUpperCase() || "U";
+        }
+
+        function createNoteCard(note, index) {
+            const card = document.createElement("article");
+            card.className = "note-card";
+
+            const preview = document.createElement("div");
+            preview.className = "note-preview";
+
+            const pdfIcon = document.createElement("div");
+            pdfIcon.className = "pdf-icon";
+            pdfIcon.textContent = "PDF";
+
+            preview.appendChild(pdfIcon);
+
+            const body = document.createElement("div");
+            body.className = "note-body";
+
+            const userRow = document.createElement("div");
+            userRow.className = "user-row";
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = getInitial(note.user?.username);
+
+            const userInfo = document.createElement("div");
+            userInfo.className = "user-info";
+
+            const username = document.createElement("p");
+            username.className = "username";
+            username.textContent = note.user?.username || "Unknown user";
+
+            const email = document.createElement("p");
+            email.className = "email";
+            email.textContent = note.user?.email || "Email unavailable";
+
+            userInfo.appendChild(username);
+            userInfo.appendChild(email);
+
+            userRow.appendChild(avatar);
+            userRow.appendChild(userInfo);
+
+            const title = document.createElement("h2");
+            title.className = "note-title";
+            title.textContent = getFileName(
+                note.noteUrl,
+                `Public note ${index + 1}`
+            );
+            title.title = title.textContent;
+
+            const ratingRow = document.createElement("div");
+            ratingRow.className = "rating-row";
+
+            const rating = document.createElement("span");
+            rating.className = "rating";
+
+            const numericRating = Number(note.rating);
+            rating.textContent = Number.isFinite(numericRating)
+                ? `★ ${numericRating.toFixed(2)}`
+                : "★ 0.00";
+
+            const visibility = document.createElement("span");
+            visibility.textContent = "Public";
+
+            ratingRow.appendChild(rating);
+            ratingRow.appendChild(visibility);
+
+            const actions = document.createElement("div");
+            actions.className = "note-actions";
+
+            const openButton = document.createElement("a");
+            openButton.className = "open-button";
+            openButton.href = note.noteUrl;
+            openButton.target = "_blank";
+            openButton.rel = "noopener noreferrer";
+            openButton.textContent = "Open PDF";
+
+            const detailsButton = document.createElement("a");
+            detailsButton.className = "details-button";
+            detailsButton.href = `note-details.html?id=${encodeURIComponent(note._id)}`;
+            detailsButton.textContent = "Details";
+
+            actions.appendChild(openButton);
+            actions.appendChild(detailsButton);
+
+            body.appendChild(userRow);
+            body.appendChild(title);
+            body.appendChild(ratingRow);
+            body.appendChild(actions);
+
+            card.appendChild(preview);
+            card.appendChild(body);
+
+            return card;
+        }
+
+        function renderPagination() {
+            if (totalPages <= 1) {
+                pagination.classList.remove("visible");
+                return;
+            }
+
+            pagination.classList.add("visible");
+            pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+            previousButton.disabled = currentPage <= 1;
+            nextButton.disabled = currentPage >= totalPages;
+        }
+
+        function renderResults(data) {
+            notesGrid.innerHTML = "";
+
+            const notes = Array.isArray(data.notes) ? data.notes : [];
+            const totalNotes = Number(data.totalNotes);
+            const backendPage = Number(data.currentPage);
+            const backendTotalPages = Number(data.totalPages);
+
+            currentPage = Number.isFinite(backendPage) ? backendPage : 1;
+            totalPages = Number.isFinite(backendTotalPages)
+                ? backendTotalPages
+                : 0;
+
+            totalNotesElement.textContent = Number.isFinite(totalNotes)
+                ? totalNotes
+                : notes.length;
+
+            pageSummary.textContent = totalPages > 0
+                ? `Page ${currentPage} of ${totalPages}`
+                : "";
+
+            if (notes.length === 0) {
+                emptyState.classList.add("visible");
+                renderPagination();
+                return;
+            }
+
+            notes.forEach(function (note, index) {
+                if (
+                    note &&
+                    typeof note === "object" &&
+                    typeof note.noteUrl === "string" &&
+                    note.noteUrl.trim() !== ""
+                ) {
+                    notesGrid.appendChild(createNoteCard(note, index));
+                }
+            });
+
+            if (notesGrid.children.length === 0) {
+                emptyState.classList.add("visible");
+            }
+
+            renderPagination();
+        }
+
+        async function loadNotes() {
+            hideStates();
+            notesGrid.innerHTML = "";
+            totalNotesElement.textContent = "0";
+            pageSummary.textContent = "";
+            setLoading(true);
+
+            if (!token) {
+                redirectToLogin();
+                return;
+            }
+
+            const params = new URLSearchParams();
+
+            if (activeSearch) {
+                params.set("search", activeSearch);
+            }
+
+            if (activeSort) {
+                params.set("sort", activeSort);
+            }
+
+            params.set("page", String(currentPage));
+            params.set("limit", String(PAGE_LIMIT));
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/user/notes/search?${params.toString()}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.status === 401) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let message = "Could not load public notes.";
+
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        message = errorData.message || errorData.error || message;
+                    } catch {
+                        if (responseText) {
+                            message = responseText;
+                        }
+                    }
+
+                    throw new Error(message);
+                }
+
+                let data;
+
+                try {
+                    data = JSON.parse(responseText);
+                } catch {
+                    throw new Error("The backend returned invalid search data.");
+                }
+
+                if (
+                    !data ||
+                    typeof data !== "object" ||
+                    Array.isArray(data)
+                ) {
+                    throw new Error("The backend returned invalid search data.");
+                }
+
+                renderResults(data);
+
+            } catch (error) {
+                errorMessage.textContent = error instanceof TypeError
+                    ? "Could not connect to the backend server."
+                    : error.message;
+
+                errorState.classList.add("visible");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            activeSearch = searchInput.value.trim();
+            activeSort = sortSelect.value;
+            currentPage = 1;
+
+            loadNotes();
+        });
+
+        sortSelect.addEventListener("change", function () {
+            activeSearch = searchInput.value.trim();
+            activeSort = sortSelect.value;
+            currentPage = 1;
+
+            loadNotes();
+        });
+
+        previousButton.addEventListener("click", function () {
+            if (currentPage > 1) {
+                currentPage -= 1;
+                loadNotes();
+            }
+        });
+
+        nextButton.addEventListener("click", function () {
+            if (currentPage < totalPages) {
+                currentPage += 1;
+                loadNotes();
+            }
+        });
+
+        retryButton.addEventListener("click", loadNotes);
+        logoutButton.addEventListener("click", redirectToLogin);
+
+        menuButton.addEventListener("click", function () {
+            sidebar.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (event) {
+            const clickedInsideSidebar = sidebar.contains(event.target);
+            const clickedMenuButton = menuButton.contains(event.target);
+
+            if (
+                window.innerWidth <= 950 &&
+                !clickedInsideSidebar &&
+                !clickedMenuButton
+            ) {
+                sidebar.classList.remove("open");
+            }
+        });
+
+        loadNotes();
+    </script>
+</body>
+</html>

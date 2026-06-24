@@ -1,7 +1,7 @@
+import cloudinary from '../config/cloudinary.js'
 import express from 'express'
 import { authMiddleware } from '../middleware/authMiddleware.js'
 import upload from '../config/multer.js'
-import { canAccessNote } from '../middleware/accessMiddleware.js'
 
 import {
     uploadfile,
@@ -11,14 +11,60 @@ import {
     SearchNotes
 } from '../controllers/noteController.js'
 
-const router = express.Router()
+import { canAccessNote } from '../middleware/accessMiddleware.js'
 
-router.use(authMiddleware)
+const Nrouter = express.Router()
 
-router.post('/user/upload', upload.single('note'), uploadfile)
-router.get('/user/notes/getnotesall', GetNotesAll)
-router.get('/user/notes/getnotesone/:id', canAccessNote, GetNotesone)
-router.delete('/user/notes/deleteone', DeleteOne)
-router.get('/user/notes/search', SearchNotes)
+Nrouter.use(authMiddleware)
 
-export default router
+
+Nrouter.get("/user/notes/test", (req, res) => {
+    let a = cloudinary.config()
+
+    res.send(a)
+})
+
+
+Nrouter.post(
+    '/user/upload',
+    upload.single('note'),
+    (req, res) => {
+        uploadfile(req, res)
+    }
+)
+
+
+Nrouter.get(
+    '/user/notes/getnotesall',
+    (req, res) => {
+        GetNotesAll(req, res)
+    }
+)
+
+
+Nrouter.get(
+    '/user/notes/getnotesone',
+    canAccessNote,
+    (req, res) => {
+        GetNotesone(req, res)
+    }
+)
+
+
+Nrouter.get(
+    '/user/notes/Deleteone',
+    (req, res) => {
+        DeleteOne(req, res)
+    }
+)
+
+
+Nrouter.get(
+    '/user/notes/search',
+    (req, res) => {
+        SearchNotes(req, res)
+    }
+)
+
+
+export default Nrouter

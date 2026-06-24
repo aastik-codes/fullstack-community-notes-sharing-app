@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Notes</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --purple: #7c3aed;
+            --background: #f6f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --text: #172033;
+            --muted: #697386;
+            --border: #e2e8f0;
+            --danger: #b91c1c;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.09), transparent 28%),
+                var(--background);
+            color: var(--text);
+        }
+
+        button,
+        a {
+            font: inherit;
+        }
+
+        .page-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+            border-right: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+            margin-bottom: 38px;
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.23);
+        }
+
+        .nav-links {
+            display: grid;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+        }
+
+        .logout-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            background: transparent;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .logout-button:hover {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .main-content {
+            min-width: 0;
+            padding: 34px 40px 50px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 34px;
+        }
+
+        .mobile-menu-button {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .heading-group h1 {
+            margin-bottom: 7px;
+            font-size: 32px;
+            letter-spacing: -0.7px;
+        }
+
+        .heading-group p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 8px 12px 8px 8px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: white;
+            color: var(--text);
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .profile-label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .hero-card {
+            position: relative;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            padding: 38px;
+            border-radius: 24px;
+            background:
+                linear-gradient(135deg, rgba(67, 56, 202, 0.98), rgba(124, 58, 237, 0.93)),
+                var(--primary);
+            color: white;
+            box-shadow: 0 24px 55px rgba(79, 70, 229, 0.22);
+        }
+
+        .hero-card::before,
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        .hero-card::before {
+            width: 260px;
+            height: 260px;
+            top: -120px;
+            right: 30px;
+        }
+
+        .hero-card::after {
+            width: 180px;
+            height: 180px;
+            right: -50px;
+            bottom: -80px;
+        }
+
+        .hero-copy,
+        .hero-visual {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-copy h2 {
+            max-width: 520px;
+            margin-bottom: 12px;
+            font-size: 30px;
+            line-height: 1.2;
+            letter-spacing: -0.7px;
+        }
+
+        .hero-copy p {
+            max-width: 520px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .primary-action,
+        .secondary-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 17px;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .primary-action {
+            background: white;
+            color: var(--primary);
+        }
+
+        .secondary-action {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-visual {
+            width: 145px;
+            height: 145px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 34px;
+            background: rgba(255, 255, 255, 0.11);
+            font-size: 58px;
+            transform: rotate(5deg);
+            backdrop-filter: blur(8px);
+        }
+
+        .section-title {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            background: var(--surface);
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.05);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 23px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 19px;
+        }
+
+        .stat-value {
+            min-height: 43px;
+            font-size: 36px;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .stat-help {
+            margin-top: 9px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 19px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: white;
+            color: var(--text);
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            border-color: #c7d2fe;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07);
+        }
+
+        .quick-action-icon {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: var(--surface-soft);
+            color: var(--primary);
+            font-size: 19px;
+        }
+
+        .quick-action strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .quick-action span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .state-box {
+            display: none;
+            padding: 16px;
+            border-radius: 13px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .state-box.visible {
+            display: block;
+        }
+
+        .state-box.error {
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .retry-button {
+            margin-top: 12px;
+            padding: 9px 13px;
+            border: none;
+            border-radius: 9px;
+            background: var(--danger);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .skeleton {
+            display: inline-block;
+            width: 90px;
+            height: 36px;
+            border-radius: 9px;
+            background: linear-gradient(
+                90deg,
+                #eef2f7 25%,
+                #f8fafc 50%,
+                #eef2f7 75%
+            );
+            background-size: 200% 100%;
+            animation: loading 1.3s infinite;
+        }
+
+        @keyframes loading {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        @media (max-width: 950px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -270px;
+                z-index: 20;
+                width: 250px;
+                transition: left 0.25s ease;
+                box-shadow: 18px 0 45px rgba(15, 23, 42, 0.13);
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .main-content {
+                padding: 28px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .hero-card {
+                padding: 30px 25px;
+            }
+
+            .hero-visual {
+                display: none;
+            }
+
+            .stats-grid,
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 20px 16px 35px;
+            }
+
+            .heading-group h1 {
+                font-size: 27px;
+            }
+
+            .profile-label {
+                display: none;
+            }
+
+            .hero-copy h2 {
+                font-size: 26px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .primary-action,
+            .secondary-action {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-layout">
+        <aside id="sidebar" class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <span>Notes</span>
+            </div>
+
+            <nav class="nav-links" aria-label="Main navigation">
+                <a class="nav-link active" href="dashboard.html">
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+                <a class="nav-link" href="my-notes.html">
+                    <span class="nav-icon">▤</span>
+                    My notes
+                </a>
+
+                <a class="nav-link" href="upload-note.html">
+                    <span class="nav-icon">＋</span>
+                    Upload note
+                </a>
+
+                <a class="nav-link" href="explore.html">
+                    <span class="nav-icon">⌕</span>
+                    Explore
+                </a>
+
+                <a class="nav-link" href="profile.html">
+                    <span class="nav-icon">◉</span>
+                    Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutButton" class="logout-button" type="button">
+                    <span class="nav-icon">↪</span>
+                    Log out
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div style="display: flex; gap: 14px; align-items: flex-start;">
+                    <button
+                        id="menuButton"
+                        class="mobile-menu-button"
+                        type="button"
+                        aria-label="Open navigation"
+                    >
+                        ☰
+                    </button>
+
+                    <div class="heading-group">
+                        <h1>Dashboard</h1>
+                        <p>Your notes activity at a glance.</p>
+                    </div>
+                </div>
+
+                <a class="profile-button" href="profile.html">
+                    <div class="avatar">U</div>
+                    <span class="profile-label">My profile</span>
+                </a>
+            </header>
+
+            <div id="errorBox" class="state-box error">
+                <span id="errorMessage"></span>
+                <br>
+                <button id="retryButton" class="retry-button" type="button">
+                    Try again
+                </button>
+            </div>
+
+            <section class="hero-card">
+                <div class="hero-copy">
+                    <h2>Keep building your knowledge library.</h2>
+
+                    <p>
+                        Upload your notes, manage what you have shared and discover useful material from other users.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a class="primary-action" href="upload-note.html">
+                            Upload a note
+                        </a>
+
+                        <a class="secondary-action" href="explore.html">
+                            Explore public notes
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual" aria-hidden="true">✦</div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Overview</h2>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Notes uploaded</span>
+                            <div class="stat-icon">▤</div>
+                        </div>
+
+                        <div id="notesValue" class="stat-value">
+                            <span class="skeleton"></span>
+                        </div>
+
+                        <p class="stat-help">
+                            Total notes in your account
+                        </p>
+                    </article>
+
+                    <article class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Average rating</span>
+                            <div class="stat-icon">★</div>
+                        </div>
+
+                        <div id="ratingValue" class="stat-value">
+                            <span class="skeleton"></span>
+                        </div>
+
+                        <p class="stat-help">
+                            Rating across your uploaded notes
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Quick actions</h2>
+
+                <div class="quick-actions">
+                    <a class="quick-action" href="upload-note.html">
+                        <div class="quick-action-icon">＋</div>
+                        <div>
+                            <strong>Upload note</strong>
+                            <span>Add a new PDF</span>
+                        </div>
+                    </a>
+
+                    <a class="quick-action" href="my-notes.html">
+                        <div class="quick-action-icon">▤</div>
+                        <div>
+                            <strong>My notes</strong>
+                            <span>Manage your uploads</span>
+                        </div>
+                    </a>
+
+                    <a class="quick-action" href="explore.html">
+                        <div class="quick-action-icon">⌕</div>
+                        <div>
+                            <strong>Explore notes</strong>
+                            <span>Find public content</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin;
+
+        const token = localStorage.getItem("token");
+
+        const notesValue = document.getElementById("notesValue");
+        const ratingValue = document.getElementById("ratingValue");
+        const errorBox = document.getElementById("errorBox");
+        const errorMessage = document.getElementById("errorMessage");
+        const retryButton = document.getElementById("retryButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const menuButton = document.getElementById("menuButton");
+        const sidebar = document.getElementById("sidebar");
+
+        function redirectToLogin() {
+            localStorage.removeItem("token");
+            window.location.replace("login.html");
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.classList.add("visible");
+        }
+
+        function clearError() {
+            errorMessage.textContent = "";
+            errorBox.classList.remove("visible");
+        }
+
+        function setLoadingState() {
+            notesValue.innerHTML = '<span class="skeleton"></span>';
+            ratingValue.innerHTML = '<span class="skeleton"></span>';
+        }
+
+        function displayDashboard(data) {
+            const notesUploaded = Number(data["Notes Uploaded"]);
+            const averageRating = Number(data["Rating"]);
+
+            notesValue.textContent = Number.isFinite(notesUploaded)
+                ? notesUploaded
+                : 0;
+
+            ratingValue.textContent = Number.isFinite(averageRating)
+                ? averageRating.toFixed(2)
+                : "0.00";
+        }
+
+        async function loadDashboard() {
+            clearError();
+            setLoadingState();
+
+            if (!token) {
+                redirectToLogin();
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/user/dashboard`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.status === 401) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    let message = "Could not load dashboard data.";
+
+                    try {
+                        const errorData = JSON.parse(responseText);
+                        message = errorData.message || message;
+                    } catch {
+                        if (responseText) {
+                            message = responseText;
+                        }
+                    }
+
+                    throw new Error(message);
+                }
+
+                let dashboardData;
+
+                try {
+                    dashboardData = JSON.parse(responseText);
+                } catch {
+                    throw new Error("The backend returned invalid dashboard data.");
+                }
+
+                if (
+                    !dashboardData ||
+                    typeof dashboardData !== "object" ||
+                    Array.isArray(dashboardData)
+                ) {
+                    throw new Error("The backend returned invalid dashboard data.");
+                }
+
+                displayDashboard(dashboardData);
+
+            } catch (error) {
+                notesValue.textContent = "—";
+                ratingValue.textContent = "—";
+
+                if (error instanceof TypeError) {
+                    showError("Could not connect to the backend server.");
+                } else {
+                    showError(error.message);
+                }
+            }
+        }
+
+        logoutButton.addEventListener("click", function () {
+            redirectToLogin();
+        });
+
+        retryButton.addEventListener("click", loadDashboard);
+
+        menuButton.addEventListener("click", function () {
+            sidebar.classList.toggle("open");
+        });
+
+        document.addEventListener("click", function (event) {
+            const clickedInsideSidebar = sidebar.contains(event.target);
+            const clickedMenuButton = menuButton.contains(event.target);
+
+            if (
+                window.innerWidth <= 950 &&
+                !clickedInsideSidebar &&
+                !clickedMenuButton
+            ) {
+                sidebar.classList.remove("open");
+            }
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>
